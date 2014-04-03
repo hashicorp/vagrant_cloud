@@ -28,6 +28,10 @@ module VagrantCloud
       data['providers'].map { |data| Provider.new(self, data['name'], data) }
     end
 
+    def to_s
+      version
+    end
+
     def data
       @data ||= account.request('get', "/box/#{account.username}/#{box.name}/version/#{number}")
     end
