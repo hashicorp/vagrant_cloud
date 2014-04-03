@@ -1,4 +1,4 @@
 vagrant_cloud
 =============
 
-Vagrant Cloud API wrapper for Ruby
+*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://vagrantcloud.com/api).
