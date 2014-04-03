@@ -20,6 +20,10 @@ module VagrantCloud
       data['description_markdown']
     end
 
+    def status
+      data['status']
+    end
+
     def providers
       data['providers'].map { |data| Provider.new(self, data['name'], data) }
     end
