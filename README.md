@@ -7,7 +7,9 @@ Consisting of four basic classes for your *account*, *boxes*, *versions* and *pr
 
 Usage
 -----
+The *vagrant_cloud* gem is hosted on [RubyGems](https://rubygems.org/gems/vagrant_cloud), see installation instructions there.
 
+Example usage:
 ```ruby
 account = VagrantCloud::Account.new('<username>', '<access_token>')
 box = vagrant_cloud.ensure_box('my_box')
