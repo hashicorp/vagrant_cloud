@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'vagrant_cloud'
-  s.version     = '0.2.1'
+  s.version     = '0.2.2'
   s.summary     = 'Vagrant Cloud API wrapper'
   s.description = 'Very minimalistic ruby wrapper for the Vagrant Cloud API'
   s.authors     = ['Cargo Media']
