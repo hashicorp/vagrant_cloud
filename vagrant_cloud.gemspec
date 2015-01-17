@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/cargomedia/vagrant_cloud'
   s.license     = 'MIT'
 
-  s.add_runtime_dependency 'rest_client'
+  s.add_runtime_dependency 'rest-client', '~>1.7'
 
-  s.add_development_dependency 'rake'
+  s.add_development_dependency 'rake', '~>10.4'
 end
