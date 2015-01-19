@@ -21,7 +21,8 @@ module VagrantCloud
     end
 
     def versions
-      data['versions'].map { |data| Version.new(self, data['number'], data) }
+      version_list = data['versions'].map { |data| Version.new(self, data['number'], data) }
+      version_list.sort_by { |version| Gem::Version.new(version.number) }
     end
 
     def data
@@ -49,7 +50,7 @@ module VagrantCloud
     end
 
     def ensure_version(name, description = nil)
-      version = versions.select{ |version| version.version == name }.first
+      version = versions.select { |version| version.version == name }.first
       unless version
         version = create_version(name, description)
       end
