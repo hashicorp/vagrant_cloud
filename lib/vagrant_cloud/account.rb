@@ -14,10 +14,11 @@ module VagrantCloud
       Box.new(self, name, data)
     end
 
-    def create_box(name, description = nil)
+    def create_box(name, description = nil, is_private = false)
       params = {:name => name}
       params[:description] = description if description
       params[:short_description] = description if description
+      params[:is_private] = is_private
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
