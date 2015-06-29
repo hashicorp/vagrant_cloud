@@ -14,20 +14,21 @@ module VagrantCloud
       Box.new(self, name, data)
     end
 
-    def create_box(name, description = nil)
+    def create_box(name, description = nil, is_private = false)
       params = {:name => name}
       params[:description] = description if description
       params[:short_description] = description if description
+      params[:is_private] = is_private ? 1 : 0
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
 
-    def ensure_box(name, description = nil)
+    def ensure_box(name, description = nil, is_private = false)
       begin
         box = get_box(name)
         box.data
       rescue RestClient::ResourceNotFound => e
-        box = create_box(name, description)
+        box = create_box(name, description, is_private)
       end
       if description and (description != box.description || description != box.description_short)
         box.update(description)
