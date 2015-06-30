@@ -18,21 +18,25 @@ module VagrantCloud
       params = {:name => name}
       params[:description] = description if description
       params[:short_description] = description if description
-      params[:is_private] = is_private
+      params[:is_private] = !!is_private
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
 
-    def ensure_box(name, description = nil, is_private = false)
+    def ensure_box(name, description = nil, is_private = nil)
       begin
         box = get_box(name)
         box.data
       rescue RestClient::ResourceNotFound => e
         box = create_box(name, description, is_private)
       end
-      if description and (description != box.description || description != box.description_short)
-        box.update(description)
+
+      updated_description = (!description.nil? && (description != box.description || description != box.description_short))
+      updated_private = (!is_private.nil? && (is_private != box.private))
+      if updated_description || updated_private
+        box.update(description, is_private)
       end
+
       box
     end
 
