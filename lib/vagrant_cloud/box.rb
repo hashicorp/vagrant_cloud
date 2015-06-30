@@ -41,14 +41,8 @@ module VagrantCloud
       @data ||= account.request('get', "/box/#{account.username}/#{name}")
     end
 
-    # @param [String] description
-    # @param [TrueClass, FalseClass] is_private
-    def update(description, is_private)
-      box = {
-        :short_description => description,
-        :description => description,
-        :is_private => is_private,
-      }
+    # @param [Hash] box
+    def update(box = {})
       @data = account.request('put', "/box/#{account.username}/#{name}", {:box => box})
     end
 
