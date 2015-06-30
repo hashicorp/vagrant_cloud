@@ -18,7 +18,7 @@ module VagrantCloud
       params = {:name => name}
       params[:description] = description if description
       params[:short_description] = description if description
-      params[:is_private] = !!is_private
+      params[:is_private] = is_private ? 1 : 0
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
