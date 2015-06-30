@@ -20,6 +20,10 @@ module VagrantCloud
       data['short_description']
     end
 
+    def private
+      data['private']
+    end
+
     def versions
       version_list = data['versions'].map { |data| Version.new(self, data['number'], data) }
       version_list.sort_by { |version| Gem::Version.new(version.number) }
