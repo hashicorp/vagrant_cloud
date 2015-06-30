@@ -20,21 +20,37 @@ module VagrantCloud
     end
 
     # @param [String] name
+    # @param [String] description
     # @param [Hash] params
     # @return [Box]
-    def create_box(name, params = {})
+    def create_box(name, description = nil, params: {})
       fail "Parameters must be a hash" unless params.is_a?(Hash)
       params[:name] = name
-      params[:is_private] = 0 unless defined? params[:is_private]
+
+      # If description is provided, it will override the params entry.
+      # This is provided for backwards compatibility.
+      params[:description] = description unless description.nil?
+      params[:short_description] = description unless description.nil?
+
+      # Default boxes to public can be overridden by providing :is_private
+      params[:is_private] = false unless defined? params[:is_private]
+
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
 
     # @param [String] name
+    # @param [String] description
     # @param [Hash] params
     # @return [Box]
-    def ensure_box(name, params = {})
+    def ensure_box(name, description = nil, params: {})
       fail "Parameters must be a hash" unless params.is_a?(Hash)
+
+      # If description is provided, it will override the params entry.
+      # This is provided for backwards compatibility.
+      params[:description] = description unless description.nil?
+      params[:short_description] = description unless description.nil?
+
       begin
         box = get_box(name)
         box.data
@@ -49,7 +65,9 @@ module VagrantCloud
 
       # Select elements from params that don't match what we have in the box
       # data. These are changed parameters and should be updated.
-      update_params = params.select { |k,v| box.data[k] != v }
+      update_params = params.select { |k,v|
+	box.data[box.param_name(k)] != v
+      }
 
       # Update the box with any params that had changed.
       box.update(update_params) unless update_params.empty?

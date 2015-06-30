@@ -81,5 +81,19 @@ module VagrantCloud
       version
     end
 
+    def param_name(param)
+      # This needs to return strings, otherwise it won't match the JSON that
+      # Vagrant Cloud returns.
+      ATTR_MAP.fetch(param, param.to_s)
+    end
+
+    private
+
+    # Vagrant Cloud returns keys different from what you set for some params.
+    # Values in this map should be strings.
+    ATTR_MAP = {
+      :is_private  => 'private',
+      :description => 'description_markdown',
+    }
   end
 end
