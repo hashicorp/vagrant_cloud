@@ -20,6 +20,10 @@ module VagrantCloud
       data['short_description']
     end
 
+    def private
+      data['private']
+    end
+
     def versions
       version_list = data['versions'].map { |data| Version.new(self, data['number'], data) }
       version_list.sort_by { |version| Gem::Version.new(version.number) }
@@ -29,8 +33,12 @@ module VagrantCloud
       @data ||= account.request('get', "/box/#{account.username}/#{name}")
     end
 
-    def update(description)
-      box = {:short_description => description, :description => description}
+    def update(description, is_private)
+      box = {
+        :short_description => description,
+        :description => description,
+        :is_private => is_private,
+      }
       @data = account.request('put', "/box/#{account.username}/#{name}", {:box => box})
     end
 
