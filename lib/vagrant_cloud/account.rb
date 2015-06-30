@@ -48,8 +48,10 @@ module VagrantCloud
 
       # If description is provided, it will override the params entry.
       # This is provided for backwards compatibility.
-      params[:description] = description unless description.nil?
-      params[:short_description] = description unless description.nil?
+      unless description.nil?
+        params[:description] = description
+        params[:short_description] = description
+      end
 
       begin
         box = get_box(name)
@@ -66,7 +68,7 @@ module VagrantCloud
       # Select elements from params that don't match what we have in the box
       # data. These are changed parameters and should be updated.
       update_params = params.select { |k,v|
-	box.data[box.param_name(k)] != v
+        box.data[box.param_name(k)] != v
       }
 
       # Update the box with any params that had changed.
