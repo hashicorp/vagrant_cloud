@@ -39,7 +39,7 @@ module VagrantCloud
         box = get_box(name)
         box.data
       rescue RestClient::ResourceNotFound => e
-        box = create_box(name, extras)
+        box = create_box(name, params)
         # If we've just created the box, we're done.
         return box
       end
