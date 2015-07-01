@@ -14,7 +14,17 @@ module VagrantCloud
     end
 
     describe '.request' do
-      it 'sends post params' do
+      it 'parses GET response' do
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').with(
+          :headers => {
+            :access_token => 'my-token',
+          }
+        ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
+
+        expect(account.request(:get, '/foo')).to eq({'bar' => 'bar'})
+      end
+
+      it 'sends POST params and parses response' do
         stub_request(:post, 'https://vagrantcloud.com/api/v1/foo').with(
           :body => {
             :access_token => 'my-token',
@@ -26,20 +36,6 @@ module VagrantCloud
         ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
 
         expect(account.request(:post, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
-      end
-
-      it 'sends get params' do
-        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').with(
-          :body => {
-            :access_token => 'my-token',
-            :foo => 'foo',
-          },
-          :headers => {
-            :access_token => 'my-token',
-          }
-        ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
-
-        expect(account.request(:get, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
       end
 
       it 'raises on errors' do
