@@ -63,5 +63,18 @@ module VagrantCloud
       end
     end
 
+    describe '.delete' do
+      it 'sends a DELETE request' do
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/foo').with(
+          :body => {
+            :access_token => 'my-token',
+          }
+        ).to_return(status: 200, body: JSON.dump({}))
+
+        box = Box.new(account, 'foo')
+        box.delete
+      end
+    end
+
   end
 end
