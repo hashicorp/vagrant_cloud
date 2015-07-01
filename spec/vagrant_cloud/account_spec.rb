@@ -1,73 +1,96 @@
 require 'spec_helper'
 require 'vagrant_cloud'
 
-describe VagrantCloud::Account do
+module VagrantCloud
+  describe Account do
 
-  let (:account) { VagrantCloud::Account.new('my-username', 'my-token') }
+    let (:account) { Account.new('my-acc', 'my-token') }
 
-  describe '#initialize' do
-    it 'stores credentials' do
-      expect(account.username).to eq('my-username')
-      expect(account.access_token).to eq('my-token')
-    end
-  end
-
-  describe '.request' do
-    it 'sends post params' do
-      stub_request(:post, 'https://vagrantcloud.com/api/v1/foo').with(
-        :body => {
-          :access_token => 'my-token',
-          :foo => 'foo',
-        },
-        :headers => {
-          :access_token => 'my-token',
-        }
-      ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
-
-      expect(account.request(:post, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
+    describe '#initialize' do
+      it 'stores credentials' do
+        expect(account.username).to eq('my-acc')
+        expect(account.access_token).to eq('my-token')
+      end
     end
 
-    it 'sends get params' do
-      stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').with(
-        :body => {
-          :access_token => 'my-token',
-          :foo => 'foo',
-        },
-        :headers => {
-          :access_token => 'my-token',
-        }
-      ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
-
-      expect(account.request(:get, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
-    end
-
-    it 'raises on error' do
-      stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').
-        to_return(status: 200, body: JSON.dump({:errors => 'bar'}))
-
-      expect { account.request(:get, '/foo', {:foo => 'foo'}) }.
-        to raise_error(RuntimeError, 'Vagrant Cloud returned error: bar')
-    end
-  end
-
-  describe '.create_box' do
-    it 'creates and returns box' do
-      result = {'return_foo' => 'foo'}
-      stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(:body =>
-          {
+    describe '.request' do
+      it 'sends post params' do
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/foo').with(
+          :body => {
             :access_token => 'my-token',
-            :box => {
-              :name => 'my-name',
-              :description => 'my-desc',
-              :short_description => 'my-desc',
-              :is_private => '1',
-            }
-          }).to_return(status: 200, body: JSON.dump(result))
+            :foo => 'foo',
+          },
+          :headers => {
+            :access_token => 'my-token',
+          }
+        ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
 
-      box = account.create_box('my-name', 'my-desc', true)
-      expect(box).to be_a(VagrantCloud::Box)
-      expect(box.data).to eq(result)
+        expect(account.request(:post, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
+      end
+
+      it 'sends get params' do
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').with(
+          :body => {
+            :access_token => 'my-token',
+            :foo => 'foo',
+          },
+          :headers => {
+            :access_token => 'my-token',
+          }
+        ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
+
+        expect(account.request(:get, '/foo', {:foo => 'foo'})).to eq({'bar' => 'bar'})
+      end
+
+      it 'raises on errors' do
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').
+          to_return(status: 200, body: JSON.dump({:errors => 'bar'}))
+
+        expect { account.request(:get, '/foo', {:foo => 'foo'}) }.
+          to raise_error(RuntimeError, 'Vagrant Cloud returned error: bar')
+      end
     end
-  end
 
+
+    describe '.create_box' do
+      it 'creates and returns box' do
+        result = {'return_foo' => 'foo'}
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(:body =>
+            {
+              :access_token => 'my-token',
+              :box => {
+                :name => 'my-name',
+                :description => 'my-desc',
+                :short_description => 'my-desc',
+                :is_private => '1',
+              }
+            }).to_return(status: 200, body: JSON.dump(result))
+
+        box = account.create_box('my-name', 'my-desc', true)
+        expect(box).to be_a(Box)
+        expect(box.data).to eq(result)
+      end
+    end
+
+    describe '.ensure_box' do
+      it 'creates nonexisting boxes' do
+        result = {'return_foo' => 'foo'}
+
+        box_requested = Box.new(account, 'foo')
+        expect(box_requested).to receive(:data).and_raise(RestClient::ResourceNotFound)
+
+        box_created = Box.new(account, 'foo')
+        allow(box_created).to receive(:description).and_return('desc')
+        allow(box_created).to receive(:description_short).and_return('desc')
+        allow(box_created).to receive(:private).and_return(true)
+
+        expect(account).to receive(:get_box).with('foo').and_return(box_requested)
+        expect(account).to receive(:create_box).with('foo', 'desc', true).and_return(box_created)
+
+        box = account.ensure_box('foo', 'desc', true)
+        expect(box).to eq(box_created)
+      end
+    end
+
+  end
 end
