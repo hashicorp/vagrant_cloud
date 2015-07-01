@@ -1,7 +1,7 @@
 vagrant_cloud
 =============
 
-*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://vagrantcloud.com/api).
+*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://atlas.hashicorp.com/docs).
 
 Consisting of four basic classes for your *account*, *boxes*, *versions* and *providers*.
 
