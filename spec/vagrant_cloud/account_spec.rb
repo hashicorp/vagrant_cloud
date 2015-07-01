@@ -56,9 +56,9 @@ module VagrantCloud
               }
             }).to_return(status: 200, body: JSON.dump(result))
 
-        box = account.create_box('my-name', 'my-desc', params: {
-                                :is_private => true,
-        })
+        box = account.create_box('my-name', 'my-desc',
+            :is_private => true,
+        )
         expect(box).to be_a(Box)
         expect(box.data).to eq(result)
       end
@@ -81,9 +81,9 @@ module VagrantCloud
             :is_private => true,
         }).and_return(box_created)
 
-        box = account.ensure_box('foo', 'desc', params: {
-                                :is_private => true,
-        })
+        box = account.ensure_box('foo', 'desc',
+            :is_private => true,
+        )
         expect(box).to eq(box_created)
       end
 
@@ -95,9 +95,9 @@ module VagrantCloud
           })
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
 
-        box = account.ensure_box('foo', 'desc', params: {
-                                :is_private => true,
-        })
+        box = account.ensure_box('foo', 'desc',
+            :is_private => true,
+        )
         expect(box).to eq(box_requested)
       end
 
@@ -113,9 +113,9 @@ module VagrantCloud
             :short_description => 'desc',
         })
 
-        box = account.ensure_box('foo', 'desc', params: {
-                                :is_private => true,
-        })
+        box = account.ensure_box('foo', 'desc',
+            :is_private => true,
+        )
         expect(box).to eq(box_requested)
       end
     end
