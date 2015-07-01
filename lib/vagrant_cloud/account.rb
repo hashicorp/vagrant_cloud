@@ -52,7 +52,7 @@ module VagrantCloud
       )
       result = JSON.parse(result)
       errors = result['errors']
-      raise "Vagrant Cloud returned error: #{errors}" if errors
+      raise(RuntimeError, "Vagrant Cloud returned error: #{errors}") if errors
       result
     end
 
