@@ -100,5 +100,44 @@ module VagrantCloud
       end
     end
 
+    describe '.ensure_version' do
+      it 'creates nonexisting versions' do
+        box = Box.new(account, 'foo')
+        version_created = VagrantCloud::Version.new(box, '1.2', {
+            'description_markdown' => 'my-desc',
+          })
+        expect(box).to receive(:versions).and_return([])
+        expect(box).to receive(:create_version).with('1.2', 'my-desc').and_return(version_created)
+
+        version = box.ensure_version('1.2', 'my-desc')
+        expect(version).to eq(version_created)
+      end
+
+      it 'returns existing versions' do
+        box = Box.new(account, 'foo')
+        version_requested = VagrantCloud::Version.new(box, '1.2', {
+            'version' => '1.2',
+            'description_markdown' => 'my-desc',
+          })
+        expect(box).to receive(:versions).and_return([version_requested])
+
+        version = box.ensure_version('1.2', 'my-desc')
+        expect(version).to eq(version_requested)
+      end
+
+      it 'updates existing versions' do
+        box = Box.new(account, 'foo')
+        version_requested = VagrantCloud::Version.new(box, '1.2', {
+            'version' => '1.2',
+            'description_markdown' => 'my-desc',
+          })
+        expect(box).to receive(:versions).and_return([version_requested])
+        expect(version_requested).to receive(:update).with('my-desc2')
+
+        version = box.ensure_version('1.2', 'my-desc2')
+        expect(version).to eq(version_requested)
+      end
+    end
+
   end
 end
