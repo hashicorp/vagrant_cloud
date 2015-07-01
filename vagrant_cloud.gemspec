@@ -5,7 +5,9 @@ Gem::Specification.new do |s|
   s.description = 'Very minimalistic ruby wrapper for the Vagrant Cloud API'
   s.authors     = ['Cargo Media']
   s.email       = 'hello@cargomedia.ch'
-  s.files       = Dir['LICENSE*', 'README*', '{bin,lib}/**/*']
+  s.files       = Dir['LICENSE*', 'README*', '{bin,lib}/**/*'].reject {
+                    |f| f.end_with?('~')
+                  }
   s.homepage    = 'https://github.com/cargomedia/vagrant_cloud'
   s.license     = 'MIT'
 
