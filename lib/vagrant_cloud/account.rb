@@ -23,7 +23,7 @@ module VagrantCloud
     # @param [String] description
     # @param [Hash] params
     # @return [Box]
-    def create_box(name, description = nil, params: {})
+    def create_box(name, description = nil, **params)
       fail "Parameters must be a hash" unless params.is_a?(Hash)
       params[:name] = name
 
@@ -43,7 +43,7 @@ module VagrantCloud
     # @param [String] description
     # @param [Hash] params
     # @return [Box]
-    def ensure_box(name, description = nil, params: {})
+    def ensure_box(name, description = nil, **params)
       fail "Parameters must be a hash" unless params.is_a?(Hash)
 
       # If description is provided, it will override the params entry.
