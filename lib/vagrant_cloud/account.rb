@@ -59,12 +59,10 @@ module VagrantCloud
     # @return [Hash]
     def request(method, path, params = {})
       params[:access_token] = access_token
-      headers = {:access_token => access_token}
       result = RestClient::Request.execute(
         :method => method,
         :url => url_base + path,
         :payload => params,
-        :headers => headers,
         :ssl_version => 'TLSv1'
       )
       result = JSON.parse(result)

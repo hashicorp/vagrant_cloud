@@ -15,11 +15,8 @@ module VagrantCloud
 
     describe '.request' do
       it 'parses GET response' do
-        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').with(
-          :headers => {
-            :access_token => 'my-token',
-          }
-        ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo').
+          to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
 
         expect(account.request(:get, '/foo')).to eq({'bar' => 'bar'})
       end
@@ -29,9 +26,6 @@ module VagrantCloud
           :body => {
             :access_token => 'my-token',
             :foo => 'foo',
-          },
-          :headers => {
-            :access_token => 'my-token',
           }
         ).to_return(status: 200, body: JSON.dump({:bar => 'bar'}))
 
