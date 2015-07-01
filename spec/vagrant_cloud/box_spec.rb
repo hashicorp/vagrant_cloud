@@ -40,5 +40,28 @@ module VagrantCloud
       end
     end
 
+    describe '.update' do
+      it 'sends a PUT request and assigns the result' do
+        result = {
+          'foo' => 'foo',
+        }
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/foo').with(
+          :body => {
+            :access_token => 'my-token',
+            :box => {
+              :short_description => 'my-desc',
+              :description => 'my-desc',
+              :is_private => 'true',
+            },
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        box = Box.new(account, 'foo')
+        box.update('my-desc', true)
+
+        expect(box.data).to eq(result)
+      end
+    end
+
   end
 end
