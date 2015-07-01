@@ -13,15 +13,15 @@ module VagrantCloud
     end
 
     def version
-      data['version']
+      data['version'].to_s
     end
 
     def description
-      data['description_markdown']
+      data['description_markdown'].to_s
     end
 
     def status
-      data['status']
+      data['status'].to_s
     end
 
     def providers
