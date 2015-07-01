@@ -73,10 +73,11 @@ module VagrantCloud
         box_requested = Box.new(account, 'foo')
         expect(box_requested).to receive(:data).and_raise(RestClient::ResourceNotFound)
 
-        box_created = Box.new(account, 'foo')
-        allow(box_created).to receive(:description).and_return('desc')
-        allow(box_created).to receive(:description_short).and_return('desc')
-        allow(box_created).to receive(:private).and_return(true)
+        box_created = Box.new(account, 'foo', {
+            'description_markdown' => 'desc',
+            'short_description' => 'desc',
+            'private' => true,
+          })
 
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
         expect(account).to receive(:create_box).with('foo', 'desc', true).and_return(box_created)
@@ -86,12 +87,11 @@ module VagrantCloud
       end
 
       it 'returns existing boxes' do
-        box_requested = Box.new(account, 'foo')
-        expect(box_requested).to receive(:data)
-        allow(box_requested).to receive(:description).and_return('desc')
-        allow(box_requested).to receive(:description_short).and_return('desc')
-        allow(box_requested).to receive(:private).and_return(true)
-
+        box_requested = Box.new(account, 'foo', {
+            'description_markdown' => 'desc',
+            'short_description' => 'desc',
+            'private' => true,
+          })
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
 
         box = account.ensure_box('foo', 'desc', true)
@@ -99,11 +99,11 @@ module VagrantCloud
       end
 
       it 'updates existing boxes' do
-        box_requested = Box.new(account, 'foo')
-        expect(box_requested).to receive(:data)
-        allow(box_requested).to receive(:description).and_return('desc2')
-        allow(box_requested).to receive(:description_short).and_return('desc2')
-        allow(box_requested).to receive(:private).and_return(true)
+        box_requested = Box.new(account, 'foo', {
+            'description_markdown' => 'desc2',
+            'short_description' => 'desc2',
+            'private' => true,
+          })
         expect(box_requested).to receive(:update).with('desc', true)
 
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
