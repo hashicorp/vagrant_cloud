@@ -29,8 +29,10 @@ module VagrantCloud
 
       # If description is provided, it will override the params entry.
       # This is provided for backwards compatibility.
-      params[:description] = description unless description.nil?
-      params[:short_description] = description unless description.nil?
+      unless description.nil?
+        params[:description] = description
+        params[:short_description] = description
+      end
 
       # Default boxes to public can be overridden by providing :is_private
       params[:is_private] = false unless defined? params[:is_private]
