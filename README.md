@@ -1,7 +1,7 @@
-vagrant_cloud
+vagrant_cloud [![Build Status](https://travis-ci.org/cargomedia/vagrant_cloud.svg)](https://travis-ci.org/cargomedia/vagrant_cloud)
 =============
 
-*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://vagrantcloud.com/api).
+*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://atlas.hashicorp.com/docs).
 
 Consisting of four basic classes for your *account*, *boxes*, *versions* and *providers*.
 
