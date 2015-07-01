@@ -76,5 +76,29 @@ module VagrantCloud
       end
     end
 
+    describe '.create_version' do
+      it 'sends a POST request and returns the right instance' do
+        result = {
+          'number' => '1.2',
+          'foo' => 'foo',
+        }
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/box/my-acc/foo/versions').with(
+          :body => {
+            :access_token => 'my-token',
+            :version => {
+              :version => '1.2',
+              :description => 'my-desc',
+            },
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        box = Box.new(account, 'foo')
+        version = box.create_version('1.2', 'my-desc')
+
+        expect(version).to be_a(Version)
+        expect(version.data).to eq(result)
+      end
+    end
+
   end
 end
