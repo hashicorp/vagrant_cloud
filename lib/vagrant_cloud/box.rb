@@ -25,7 +25,7 @@ module VagrantCloud
     end
 
     def versions
-      version_list = data['versions'].map { |data| Version.new(self, data['number'], data) }
+      version_list = data['versions'].map { |data| VagrantCloud::Version.new(self, data['number'], data) }
       version_list.sort_by { |version| Gem::Version.new(version.number) }
     end
 
@@ -47,7 +47,7 @@ module VagrantCloud
     end
 
     def get_version(number, data = nil)
-      Version.new(self, number, data)
+      VagrantCloud::Version.new(self, number, data)
     end
 
     def create_version(name, description = nil)
