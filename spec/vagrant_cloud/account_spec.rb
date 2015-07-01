@@ -74,8 +74,6 @@ module VagrantCloud
 
     describe '.ensure_box' do
       it 'creates nonexisting boxes' do
-        result = {'return_foo' => 'foo'}
-
         box_requested = Box.new(account, 'foo')
         expect(box_requested).to receive(:data).and_raise(RestClient::ResourceNotFound)
 
@@ -89,6 +87,33 @@ module VagrantCloud
 
         box = account.ensure_box('foo', 'desc', true)
         expect(box).to eq(box_created)
+      end
+
+      it 'returns existing boxes' do
+        box_requested = Box.new(account, 'foo')
+        expect(box_requested).to receive(:data)
+        allow(box_requested).to receive(:description).and_return('desc')
+        allow(box_requested).to receive(:description_short).and_return('desc')
+        allow(box_requested).to receive(:private).and_return(true)
+
+        expect(account).to receive(:get_box).with('foo').and_return(box_requested)
+
+        box = account.ensure_box('foo', 'desc', true)
+        expect(box).to eq(box_requested)
+      end
+
+      it 'updates existing boxes' do
+        box_requested = Box.new(account, 'foo')
+        expect(box_requested).to receive(:data)
+        allow(box_requested).to receive(:description).and_return('desc2')
+        allow(box_requested).to receive(:description_short).and_return('desc2')
+        allow(box_requested).to receive(:private).and_return(true)
+        expect(box_requested).to receive(:update).with('desc', true)
+
+        expect(account).to receive(:get_box).with('foo').and_return(box_requested)
+
+        box = account.ensure_box('foo', 'desc', true)
+        expect(box).to eq(box_requested)
       end
     end
 
