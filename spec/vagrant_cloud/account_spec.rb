@@ -52,7 +52,7 @@ module VagrantCloud
                 :name => 'my-name',
                 :description => 'my-desc',
                 :short_description => 'my-desc',
-                :is_private => '1',
+                :is_private => 'true',
               }
             }).to_return(status: 200, body: JSON.dump(result))
 
