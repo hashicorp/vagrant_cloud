@@ -78,7 +78,6 @@ module VagrantCloud
             'short_description' => 'desc',
             'private' => true,
           })
-
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
         expect(account).to receive(:create_box).with('foo', 'desc', true).and_return(box_created)
 
@@ -104,9 +103,8 @@ module VagrantCloud
             'short_description' => 'desc2',
             'private' => true,
           })
-        expect(box_requested).to receive(:update).with('desc', true)
-
         expect(account).to receive(:get_box).with('foo').and_return(box_requested)
+        expect(box_requested).to receive(:update).with('desc', true)
 
         box = account.ensure_box('foo', 'desc', true)
         expect(box).to eq(box_requested)
