@@ -20,22 +20,11 @@ module VagrantCloud
     end
 
     # @param [String] name
-    # @param [String] description
-    # @param [Hash] params
+    # @param [Array] params
     # @return [Box]
-    def create_box(name, description = nil, **params)
-      fail "Parameters must be a hash" unless params.is_a?(Hash)
+    def create_box(name, *args)
+      params = box_params(*args)
       params[:name] = name
-
-      # If description is provided, it will override the params entry.
-      # This is provided for backwards compatibility.
-      unless description.nil?
-        params[:description] = description
-        params[:short_description] = description
-      end
-
-      # Default boxes to public can be overridden by providing :is_private
-      params[:is_private] = false unless defined? params[:is_private]
 
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
@@ -45,15 +34,8 @@ module VagrantCloud
     # @param [String] description
     # @param [Hash] params
     # @return [Box]
-    def ensure_box(name, description = nil, **params)
-      fail "Parameters must be a hash" unless params.is_a?(Hash)
-
-      # If description is provided, it will override the params entry.
-      # This is provided for backwards compatibility.
-      unless description.nil?
-        params[:description] = description
-        params[:short_description] = description
-      end
+    def ensure_box(name, *args)
+      params = box_params(*args)
 
       begin
         box = get_box(name)
@@ -102,6 +84,39 @@ module VagrantCloud
     # @return [String]
     def url_base
       'https://vagrantcloud.com/api/v1'
+    end
+
+    # @param [Array] args
+    # @return [Hash]
+    def box_params(*args)
+      # This dance is to simulate what we could have accomplished with **args
+      # in Ruby 2.0+
+      # Find and remove the first hash we find in *args. Set params to an
+      # empty hash if we weren't passed one.
+      # This could easily be changed to merge all hashes in *args if
+      # necessary.
+      params = args.select { |v| v.is_a?(Hash) }.first
+      if params.is_a?(Hash)
+        args.delete_if { |v| v == params }
+      else
+        params = {}
+      end
+
+      # Description should be the first item that's left in *args, if nothing
+      # is left (we were only passed a hash), this will return nil.
+      description = args.first
+
+      # If description is provided, it will override the params entry.
+      # This is provided for backwards compatibility.
+      unless description.nil?
+        params[:description] = description
+        params[:short_description] = description
+      end
+
+      # Default boxes to public can be overridden by providing :is_private
+      params[:is_private] = false unless defined? params[:is_private]
+
+      params
     end
 
   end
