@@ -96,10 +96,10 @@ module VagrantCloud
       # This could easily be changed to merge all hashes in *args if
       # necessary.
       params = args.select { |v| v.is_a?(Hash) }.first
-      if params.is_a?(Hash)
-        args.delete_if { |v| v == params }
-      else
+      if params.nil?
         params = {}
+      else
+        args.delete_if { |v| v == params }
       end
 
       # Description should be the first item that's left in *args, if nothing
