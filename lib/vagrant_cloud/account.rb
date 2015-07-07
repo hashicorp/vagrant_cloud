@@ -45,9 +45,6 @@ module VagrantCloud
         return box
       end
 
-      # If params is empty, there's nothing to update.
-      return box if params.empty?
-
       # Select elements from params that don't match what we have in the box
       # data. These are changed parameters and should be updated.
       update_params = params.select { |k,v|
