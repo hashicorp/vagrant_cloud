@@ -85,6 +85,10 @@ module VagrantCloud
     # @param [Array] args
     # @return [Hash]
     def box_params(*args)
+      # Prepares a hash based on the *args array passed in.
+      # Acceptable parameters are those documented by Hashicorp for the v1 API
+      # at https://atlas.hashicorp.com/docs
+
       # This dance is to simulate what we could have accomplished with **args
       # in Ruby 2.0+
       # This will silently discard any options that are not passed in as a
