@@ -41,7 +41,7 @@ module VagrantCloud
       @data ||= account.request('get', "/box/#{account.username}/#{name}")
     end
 
-    # @param [Hash] box
+    # @param [Hash] args
     def update(args = {})
       @data = account.request('put', "/box/#{account.username}/#{name}", {:box => args})
     end
