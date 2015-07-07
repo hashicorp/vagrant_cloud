@@ -87,26 +87,15 @@ module VagrantCloud
     def box_params(*args)
       # This dance is to simulate what we could have accomplished with **args
       # in Ruby 2.0+
+      # This will silently discard any options that are not passed in as a
+      # hash.
       # Find and remove the first hash we find in *args. Set params to an
       # empty hash if we weren't passed one.
-      # This could easily be changed to merge all hashes in *args if
-      # necessary.
       params = args.select { |v| v.is_a?(Hash) }.first
       if params.nil?
         params = {}
       else
         args.delete_if { |v| v == params }
-      end
-
-      # Description should be the first item that's left in *args, if nothing
-      # is left (we were only passed a hash), this will return nil.
-      description = args.first
-
-      # If description is provided, it will override the params entry.
-      # This is provided for backwards compatibility.
-      unless description.nil?
-        params[:description] = description
-        params[:short_description] = description
       end
 
       # Default boxes to public can be overridden by providing :is_private
