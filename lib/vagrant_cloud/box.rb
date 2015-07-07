@@ -81,6 +81,8 @@ module VagrantCloud
       version
     end
 
+    # @param [Symbol]
+    # @return [String]
     def param_name(param)
       # This needs to return strings, otherwise it won't match the JSON that
       # Vagrant Cloud returns.

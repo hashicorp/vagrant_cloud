@@ -20,7 +20,7 @@ module VagrantCloud
     end
 
     # @param [String] name
-    # @param [Array] params
+    # @param [Hash] params
     # @return [Box]
     def create_box(name, *args)
       params = box_params(*args)
@@ -31,7 +31,6 @@ module VagrantCloud
     end
 
     # @param [String] name
-    # @param [String] description
     # @param [Hash] params
     # @return [Box]
     def ensure_box(name, *args)
