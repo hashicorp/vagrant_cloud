@@ -57,7 +57,11 @@ module VagrantCloud
         ).to_return(status: 200, body: JSON.dump(result))
 
         box = Box.new(account, 'foo')
-        box.update('my-desc', true)
+        box.update({
+            :description => 'my-desc',
+            :short_description => 'my-desc',
+            :is_private => true,
+        })
 
         expect(box.data).to eq(result)
       end

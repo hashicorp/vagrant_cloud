@@ -20,35 +20,39 @@ module VagrantCloud
     end
 
     # @param [String] name
-    # @param [String] description
-    # @param [TrueClass, FalseClass] is_private
+    # @param [Hash] args
     # @return [Box]
-    def create_box(name, description = nil, is_private = false)
-      params = {:name => name}
-      params[:description] = description if description
-      params[:short_description] = description if description
-      params[:is_private] = is_private
+    def create_box(name, *args)
+      params = box_params(*args)
+      params[:name] = name
+
       data = request('post', '/boxes', {:box => params})
       get_box(name, data)
     end
 
     # @param [String] name
-    # @param [String] description
-    # @param [TrueClass, FalseClass] is_private
+    # @param [Hash] args
     # @return [Box]
-    def ensure_box(name, description = nil, is_private = nil)
+    def ensure_box(name, *args)
+      params = box_params(*args)
+
       begin
         box = get_box(name)
         box.data
       rescue RestClient::ResourceNotFound => e
-        box = create_box(name, description, is_private)
+        box = create_box(name, params)
+        # If we've just created the box, we're done.
+        return box
       end
 
-      updated_description = (!description.nil? && (description != box.description || description != box.description_short))
-      updated_private = (!is_private.nil? && (is_private != box.private))
-      if updated_description || updated_private
-        box.update(description, is_private)
-      end
+      # Select elements from params that don't match what we have in the box
+      # data. These are changed parameters and should be updated.
+      update_params = params.select { |k,v|
+        box.data[box.param_name(k)] != v
+      }
+
+      # Update the box with any params that had changed.
+      box.update(update_params) unless update_params.empty?
 
       box
     end
@@ -76,6 +80,32 @@ module VagrantCloud
     # @return [String]
     def url_base
       'https://vagrantcloud.com/api/v1'
+    end
+
+    # @param [Array] args
+    # @return [Hash]
+    def box_params(*args)
+      # Prepares a hash based on the *args array passed in.
+      # Acceptable parameters are those documented by Hashicorp for the v1 API
+      # at https://atlas.hashicorp.com/docs
+
+      # This dance is to simulate what we could have accomplished with **args
+      # in Ruby 2.0+
+      # This will silently discard any options that are not passed in as a
+      # hash.
+      # Find and remove the first hash we find in *args. Set params to an
+      # empty hash if we weren't passed one.
+      params = args.select { |v| v.is_a?(Hash) }.first
+      if params.nil?
+        params = {}
+      else
+        args.delete_if { |v| v == params }
+      end
+
+      # Default boxes to public can be overridden by providing :is_private
+      params[:is_private] = false unless defined? params[:is_private]
+
+      params
     end
 
   end

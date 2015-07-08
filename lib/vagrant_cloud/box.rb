@@ -41,15 +41,9 @@ module VagrantCloud
       @data ||= account.request('get', "/box/#{account.username}/#{name}")
     end
 
-    # @param [String] description
-    # @param [TrueClass, FalseClass] is_private
-    def update(description, is_private)
-      box = {
-        :short_description => description,
-        :description => description,
-        :is_private => is_private,
-      }
-      @data = account.request('put', "/box/#{account.username}/#{name}", {:box => box})
+    # @param [Hash] args
+    def update(args = {})
+      @data = account.request('put', "/box/#{account.username}/#{name}", {:box => args})
     end
 
     def delete
@@ -87,5 +81,21 @@ module VagrantCloud
       version
     end
 
+    # @param [Symbol]
+    # @return [String]
+    def param_name(param)
+      # This needs to return strings, otherwise it won't match the JSON that
+      # Vagrant Cloud returns.
+      ATTR_MAP.fetch(param, param.to_s)
+    end
+
+    private
+
+    # Vagrant Cloud returns keys different from what you set for some params.
+    # Values in this map should be strings.
+    ATTR_MAP = {
+      :is_private  => 'private',
+      :description => 'description_markdown',
+    }
   end
 end
