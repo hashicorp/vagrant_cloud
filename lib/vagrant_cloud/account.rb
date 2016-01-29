@@ -103,7 +103,7 @@ module VagrantCloud
       end
 
       # Default boxes to public can be overridden by providing :is_private
-      params[:is_private] = false unless defined? params[:is_private]
+      params[:is_private] = false unless params.has_key?(:is_private)
 
       params
     end

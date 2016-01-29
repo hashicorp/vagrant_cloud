@@ -64,6 +64,25 @@ module VagrantCloud
         expect(box).to be_a(Box)
         expect(box.data).to eq(result)
       end
+
+      context 'when not passing :is_private' do
+        it 'creates a public box' do
+          result = {'return_foo' => 'foo'}
+          stub_request(:post, 'https://atlas.hashicorp.com/api/v1/boxes').with(:body =>
+             {
+               :access_token => 'my-token',
+               :box => {
+                 :name => 'my-name',
+                 :description => 'my-desc',
+                 :is_private => 'false',
+               }
+             }).to_return(status: 200, body: JSON.dump(result))
+
+          box = account.create_box('my-name', :description => 'my-desc')
+          expect(box).to be_a(Box)
+          expect(box.data).to eq(result)
+        end
+      end
     end
 
     describe '.ensure_box' do
