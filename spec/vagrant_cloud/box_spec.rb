@@ -45,7 +45,7 @@ module VagrantCloud
         result = {
           'foo' => 'foo',
         }
-        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/foo').with(
+        stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo').with(
           :body => {
             :access_token => 'my-token',
             :box => {
@@ -69,7 +69,7 @@ module VagrantCloud
 
     describe '.delete' do
       it 'sends a DELETE request' do
-        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/foo').with(
+        stub_request(:delete, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo').with(
           :body => {
             :access_token => 'my-token',
           }
@@ -86,7 +86,7 @@ module VagrantCloud
           'number' => '1.2',
           'foo' => 'foo',
         }
-        stub_request(:post, 'https://vagrantcloud.com/api/v1/box/my-acc/foo/versions').with(
+        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo/versions').with(
           :body => {
             :access_token => 'my-token',
             :version => {

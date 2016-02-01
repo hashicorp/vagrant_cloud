@@ -1,22 +1,23 @@
-vagrant_cloud [![Build Status](https://travis-ci.org/cargomedia/vagrant_cloud.svg)](https://travis-ci.org/cargomedia/vagrant_cloud)
+vagrant_cloud
 =============
+Minimalistic ruby client for the [HashiCorp Atlas API](https://atlas.hashicorp.com/docs) (previously *Vagrant Cloud API*).
 
-*Very* minimalistic ruby wrapper for the [Vagrant Cloud API](https://atlas.hashicorp.com/docs).
+[![Build Status](https://img.shields.io/travis/cargomedia/vagrant_cloud/master.svg)](https://travis-ci.org/cargomedia/vagrant_cloud)
+[![Gem Version](https://img.shields.io/gem/v/vagrant_cloud.svg)](https://rubygems.org/gems/vagrant_cloud)
 
-Consisting of four basic classes for your *account*, *boxes*, *versions* and *providers*.
+
+This client allows to create, modify and delete *boxes*, *versions* and *providers*.
+The main entry point is an object referencing your *account*.
 
 Usage
 -----
-The *vagrant_cloud* gem is hosted on [RubyGems](https://rubygems.org/gems/vagrant_cloud), see installation instructions there.
-
 Example usage:
 ```ruby
 account = VagrantCloud::Account.new('<username>', '<access_token>')
-box = vagrant_cloud.ensure_box('my_box')
+box = account.ensure_box('my_box')
 version = box.ensure_version('0.0.1')
-provider_foo = version.ensure_provider('foo', 'http://example.com/foo.box')
-provider_bar = version.ensure_provider('bar', 'http://example.com/bar.box')
+provider = version.ensure_provider('virtualbox', 'http://example.com/foo.box')
 
 version.release
-puts provider_foo.download_url
+puts provider.download_url
 ```

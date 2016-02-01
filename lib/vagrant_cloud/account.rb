@@ -79,7 +79,7 @@ module VagrantCloud
 
     # @return [String]
     def url_base
-      'https://vagrantcloud.com/api/v1'
+      'https://atlas.hashicorp.com/api/v1'
     end
 
     # @param [Array] args
