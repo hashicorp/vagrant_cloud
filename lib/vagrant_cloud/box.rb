@@ -1,7 +1,5 @@
 module VagrantCloud
-
   class Box
-
     attr_accessor :account
     attr_accessor :name
     attr_accessor :data
@@ -43,7 +41,7 @@ module VagrantCloud
 
     # @param [Hash] args
     def update(args = {})
-      @data = account.request('put', "/box/#{account.username}/#{name}", {:box => args})
+      @data = account.request('put', "/box/#{account.username}/#{name}", box: args)
     end
 
     def delete
@@ -61,9 +59,9 @@ module VagrantCloud
     # @param [String] description
     # @return [Version]
     def create_version(name, description = nil)
-      params = {:version => name}
+      params = { version: name }
       params[:description] = description if description
-      data = account.request('post', "/box/#{account.username}/#{self.name}/versions", {:version => params})
+      data = account.request('post', "/box/#{account.username}/#{self.name}/versions", version: params)
       get_version(data['number'], data)
     end
 
@@ -72,10 +70,8 @@ module VagrantCloud
     # @return [Version]
     def ensure_version(name, description = nil)
       version = versions.select { |version| version.version == name }.first
-      unless version
-        version = create_version(name, description)
-      end
-      if description and (description != version.description)
+      version = create_version(name, description) unless version
+      if description && (description != version.description)
         version.update(description)
       end
       version
@@ -94,8 +90,8 @@ module VagrantCloud
     # Vagrant Cloud returns keys different from what you set for some params.
     # Values in this map should be strings.
     ATTR_MAP = {
-      :is_private  => 'private',
-      :description => 'description_markdown',
-    }
+      is_private: 'private',
+      description: 'description_markdown'
+    }.freeze
   end
 end

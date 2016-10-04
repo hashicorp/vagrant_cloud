@@ -3,7 +3,6 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-
     let (:account) { Account.new('my-acc', 'my-token') }
     let (:box) { Box.new(account, 'my-box') }
 
@@ -12,7 +11,7 @@ module VagrantCloud
         data = {
           'version' => '1.2',
           'description_markdown' => 'desc-markdown',
-          'status' => 'unreleased',
+          'status' => 'unreleased'
         }
         version = VagrantCloud::Version.new(box, '1.2', data)
 
@@ -27,13 +26,13 @@ module VagrantCloud
     describe '.update' do
       it 'sends a PUT request and assigns the result' do
         result = {
-          'foo' => 'foo',
+          'foo' => 'foo'
         }
         stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2').with(
-          :body => {
-            :access_token => 'my-token',
-            :version => {
-              :description => 'my-desc',
+          body: {
+            access_token: 'my-token',
+            version: {
+              description: 'my-desc'
             }
           }
         ).to_return(status: 200, body: JSON.dump(result))
@@ -48,8 +47,8 @@ module VagrantCloud
     describe '.delete' do
       it 'sends a DELETE request' do
         stub_request(:delete, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2').with(
-          :body => {
-            :access_token => 'my-token',
+          body: {
+            access_token: 'my-token'
           }
         ).to_return(status: 200, body: JSON.dump({}))
 
@@ -61,8 +60,8 @@ module VagrantCloud
     describe '.release' do
       it 'sends a PUT request' do
         stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/release').with(
-          :body => {
-            :access_token => 'my-token',
+          body: {
+            access_token: 'my-token'
           }
         ).to_return(status: 200, body: JSON.dump({}))
 
@@ -74,8 +73,8 @@ module VagrantCloud
     describe '.revoke' do
       it 'sends a PUT request' do
         stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/revoke').with(
-          :body => {
-            :access_token => 'my-token',
+          body: {
+            access_token: 'my-token'
           }
         ).to_return(status: 200, body: JSON.dump({}))
 
@@ -87,15 +86,15 @@ module VagrantCloud
     describe '.create_provider' do
       it 'sends a POST request and returns the right instance' do
         result = {
-          'foo' => 'foo',
+          'foo' => 'foo'
         }
         stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
-          :body => {
-            :access_token => 'my-token',
-            :provider => {
-              :name => 'my-prov',
-              :url => 'http://example.com',
-            },
+          body: {
+            access_token: 'my-token',
+            provider: {
+              name: 'my-prov',
+              url: 'http://example.com'
+            }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
@@ -110,9 +109,7 @@ module VagrantCloud
     describe '.ensure_provider' do
       it 'creates nonexisting providers' do
         version = VagrantCloud::Version.new(box, '1.2')
-        provider_created = Provider.new(version, 'my-prov', {
-            'original_url' => 'http://example.com',
-          })
+        provider_created = Provider.new(version, 'my-prov', 'original_url' => 'http://example.com')
         expect(version).to receive(:providers).and_return([])
         expect(version).to receive(:create_provider).with('my-prov', 'http://example.com').and_return(provider_created)
 
@@ -122,9 +119,7 @@ module VagrantCloud
 
       it 'returns existing providers' do
         version = VagrantCloud::Version.new(box, '1.2')
-        provider_requested = Provider.new(version, 'my-prov', {
-            'original_url' => 'http://example.com',
-          })
+        provider_requested = Provider.new(version, 'my-prov', 'original_url' => 'http://example.com')
         expect(version).to receive(:providers).and_return([provider_requested])
 
         provider = version.ensure_provider('my-prov', 'http://example.com')
@@ -133,9 +128,7 @@ module VagrantCloud
 
       it 'updates existing providers' do
         version = VagrantCloud::Version.new(box, '1.2')
-        provider_requested = Provider.new(version, 'my-prov', {
-            'original_url' => 'http://example.com',
-          })
+        provider_requested = Provider.new(version, 'my-prov', 'original_url' => 'http://example.com')
         expect(version).to receive(:providers).and_return([provider_requested])
         expect(provider_requested).to receive(:update).with('http://example2.com')
 
@@ -143,6 +136,5 @@ module VagrantCloud
         expect(provider).to eq(provider_requested)
       end
     end
-
   end
 end
