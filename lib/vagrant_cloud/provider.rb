@@ -1,7 +1,5 @@
 module VagrantCloud
-
   class Provider
-
     attr_accessor :version
     attr_accessor :name
     attr_accessor :data
@@ -32,8 +30,8 @@ module VagrantCloud
 
     # @param [String] url
     def update(url)
-      params = {:url => url}
-      @data = account.request('put', "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}", {:provider => params})
+      params = { url: url }
+      @data = account.request('put', "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}", provider: params)
     end
 
     def delete
@@ -51,6 +49,5 @@ module VagrantCloud
     def account
       box.account
     end
-
   end
 end

@@ -1,0 +1,29 @@
+Lint/ParenthesesAsGroupedExpression:
+  Exclude:
+    - 'spec/vagrant_cloud/account_spec.rb'
+    - 'spec/vagrant_cloud/box_spec.rb'
+    - 'spec/vagrant_cloud/provider_spec.rb'
+    - 'spec/vagrant_cloud/version_spec.rb'
+
+Lint/ShadowingOuterLocalVariable:
+  Exclude:
+    - 'lib/vagrant_cloud/box.rb'
+    - 'lib/vagrant_cloud/version.rb'
+
+Lint/UselessAccessModifier:
+  Exclude:
+    - 'lib/vagrant_cloud/box.rb'
+
+Lint/UselessAssignment:
+  Exclude:
+    - 'lib/vagrant_cloud/account.rb'
+
+Metrics/MethodLength:
+  Max: 13
+
+Metrics/ModuleLength:
+  Max: 115
+
+Style/DoubleNegation:
+  Exclude:
+    - 'lib/vagrant_cloud/box.rb'

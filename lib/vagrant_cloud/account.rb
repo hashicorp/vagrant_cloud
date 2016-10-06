@@ -1,7 +1,5 @@
 module VagrantCloud
-
   class Account
-
     attr_accessor :username
     attr_accessor :access_token
 
@@ -26,7 +24,7 @@ module VagrantCloud
       params = box_params(*args)
       params[:name] = name
 
-      data = request('post', '/boxes', {:box => params})
+      data = request('post', '/boxes', box: params)
       get_box(name, data)
     end
 
@@ -47,9 +45,9 @@ module VagrantCloud
 
       # Select elements from params that don't match what we have in the box
       # data. These are changed parameters and should be updated.
-      update_params = params.select { |k,v|
+      update_params = params.select do |k, v|
         box.data[box.param_name(k)] != v
-      }
+      end
 
       # Update the box with any params that had changed.
       box.update(update_params) unless update_params.empty?
@@ -64,14 +62,14 @@ module VagrantCloud
     def request(method, path, params = {})
       params[:access_token] = access_token
       result = RestClient::Request.execute(
-        :method => method,
-        :url => url_base + path,
-        :payload => params,
-        :ssl_version => 'TLSv1'
+        method: method,
+        url: url_base + path,
+        payload: params,
+        ssl_version: 'TLSv1'
       )
       result = JSON.parse(result)
       errors = result['errors']
-      raise(RuntimeError, "Vagrant Cloud returned error: #{errors}") if errors
+      raise "Vagrant Cloud returned error: #{errors}" if errors
       result
     end
 
@@ -103,10 +101,9 @@ module VagrantCloud
       end
 
       # Default boxes to public can be overridden by providing :is_private
-      params[:is_private] = false unless params.has_key?(:is_private)
+      params[:is_private] = false unless params.key?(:is_private)
 
       params
     end
-
   end
 end

@@ -1,7 +1,5 @@
 module VagrantCloud
-
   class Version
-
     attr_accessor :box
     attr_accessor :number
     attr_accessor :data
@@ -47,8 +45,8 @@ module VagrantCloud
 
     # @param [String] description
     def update(description)
-      version = {:description => description}
-      @data = account.request('put', "/box/#{account.username}/#{box.name}/version/#{number}", {:version => version})
+      version = { description: description }
+      @data = account.request('put', "/box/#{account.username}/#{box.name}/version/#{number}", version: version)
     end
 
     def delete
@@ -74,8 +72,8 @@ module VagrantCloud
     # @param [String] url
     # @return [Provider]
     def create_provider(name, url)
-      params = {:name => name, :url => url}
-      data = account.request('post', "/box/#{account.username}/#{box.name}/version/#{self.number}/providers", {:provider => params})
+      params = { name: name, url: url }
+      data = account.request('post', "/box/#{account.username}/#{box.name}/version/#{number}/providers", provider: params)
       get_provider(name, data)
     end
 
@@ -83,13 +81,9 @@ module VagrantCloud
     # @param [String] url
     # @return [Provider]
     def ensure_provider(name, url)
-      provider = providers.select{ |provider| provider.name == name }.first
-      unless provider
-        provider = create_provider(name, url)
-      end
-      if url != provider.url
-        provider.update(url)
-      end
+      provider = providers.select { |provider| provider.name == name }.first
+      provider = create_provider(name, url) unless provider
+      provider.update(url) if url != provider.url
       provider
     end
 
@@ -99,6 +93,5 @@ module VagrantCloud
     def account
       box.account
     end
-
   end
 end

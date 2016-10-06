@@ -3,7 +3,6 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-
     let (:account) { Account.new('my-acc', 'my-token') }
 
     describe '#initialize' do
@@ -12,7 +11,7 @@ module VagrantCloud
           'description_markdown' => 'desc-markdown',
           'short_description' => 'desc-short',
           'private' => false,
-          'versions' => [],
+          'versions' => []
         }
         box = Box.new(account, 'foo', data)
 
@@ -27,12 +26,10 @@ module VagrantCloud
 
     describe '.versions' do
       it 'returns version in the right order' do
-        box = Box.new(account, 'foo', {
-            'versions' => [
-              {'number' => '2.0'},
-              {'number' => '1.0'},
-            ],
-          })
+        box = Box.new(account, 'foo', 'versions' => [
+                        { 'number' => '2.0' },
+                        { 'number' => '1.0' }
+                      ])
 
         expect(box.versions.length).to eq(2)
         expect(box.versions[0].number).to eq('1.0')
@@ -43,25 +40,23 @@ module VagrantCloud
     describe '.update' do
       it 'sends a PUT request and assigns the result' do
         result = {
-          'foo' => 'foo',
+          'foo' => 'foo'
         }
         stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo').with(
-          :body => {
-            :access_token => 'my-token',
-            :box => {
-              :short_description => 'my-desc',
-              :description => 'my-desc',
-              :is_private => 'true',
-            },
+          body: {
+            access_token: 'my-token',
+            box: {
+              short_description: 'my-desc',
+              description: 'my-desc',
+              is_private: 'true'
+            }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
         box = Box.new(account, 'foo')
-        box.update({
-            :description => 'my-desc',
-            :short_description => 'my-desc',
-            :is_private => true,
-        })
+        box.update(description: 'my-desc',
+                   short_description: 'my-desc',
+                   is_private: true)
 
         expect(box.data).to eq(result)
       end
@@ -70,8 +65,8 @@ module VagrantCloud
     describe '.delete' do
       it 'sends a DELETE request' do
         stub_request(:delete, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo').with(
-          :body => {
-            :access_token => 'my-token',
+          body: {
+            access_token: 'my-token'
           }
         ).to_return(status: 200, body: JSON.dump({}))
 
@@ -84,15 +79,15 @@ module VagrantCloud
       it 'sends a POST request and returns the right instance' do
         result = {
           'number' => '1.2',
-          'foo' => 'foo',
+          'foo' => 'foo'
         }
         stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/foo/versions').with(
-          :body => {
-            :access_token => 'my-token',
-            :version => {
-              :version => '1.2',
-              :description => 'my-desc',
-            },
+          body: {
+            access_token: 'my-token',
+            version: {
+              version: '1.2',
+              description: 'my-desc'
+            }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
@@ -107,9 +102,7 @@ module VagrantCloud
     describe '.ensure_version' do
       it 'creates nonexisting versions' do
         box = Box.new(account, 'foo')
-        version_created = VagrantCloud::Version.new(box, '1.2', {
-            'description_markdown' => 'my-desc',
-          })
+        version_created = VagrantCloud::Version.new(box, '1.2', 'description_markdown' => 'my-desc')
         expect(box).to receive(:versions).and_return([])
         expect(box).to receive(:create_version).with('1.2', 'my-desc').and_return(version_created)
 
@@ -119,10 +112,8 @@ module VagrantCloud
 
       it 'returns existing versions' do
         box = Box.new(account, 'foo')
-        version_requested = VagrantCloud::Version.new(box, '1.2', {
-            'version' => '1.2',
-            'description_markdown' => 'my-desc',
-          })
+        version_requested = VagrantCloud::Version.new(box, '1.2', 'version' => '1.2',
+                                                                  'description_markdown' => 'my-desc')
         expect(box).to receive(:versions).and_return([version_requested])
 
         version = box.ensure_version('1.2', 'my-desc')
@@ -131,10 +122,8 @@ module VagrantCloud
 
       it 'updates existing versions' do
         box = Box.new(account, 'foo')
-        version_requested = VagrantCloud::Version.new(box, '1.2', {
-            'version' => '1.2',
-            'description_markdown' => 'my-desc',
-          })
+        version_requested = VagrantCloud::Version.new(box, '1.2', 'version' => '1.2',
+                                                                  'description_markdown' => 'my-desc')
         expect(box).to receive(:versions).and_return([version_requested])
         expect(version_requested).to receive(:update).with('my-desc2')
 
@@ -142,6 +131,5 @@ module VagrantCloud
         expect(version).to eq(version_requested)
       end
     end
-
   end
 end
