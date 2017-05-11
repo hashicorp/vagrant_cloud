@@ -55,5 +55,51 @@ module VagrantCloud
         provider.delete
       end
     end
+
+    describe '.upload_url' do
+      it 'sends a POST request' do
+        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
+          body: {
+            access_token: 'my-token'
+          }
+        ).to_return(status: 200, body: JSON.dump({}))
+
+        provider = Provider.new(version, 'my-prov')
+        provider.upload_url
+      end
+    end
+
+    describe '.upload_file' do
+      let(:provider) { Provider.new(version, 'my-prov') }
+      let(:file_path) { './example.box' }
+      let(:response) do
+        {
+          'upload_path' => 'http://example.org/upload_url'
+        }
+      end
+
+      before(:each) do
+        File.open(file_path, 'w') do |f|
+          f.write 'temp-file'
+          f.flush
+        end
+      end
+
+      it 'sends a PUT request to upload a file' do
+        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
+          body: {
+            access_token: 'my-token'
+          }
+        ).to_return(status: 200, body: JSON.dump(response))
+        stub_request(:put, response['upload_path']).with(body: File.read(file_path)).to_return(status: 200, body: '')
+
+        results = provider.upload_file(file_path)
+        expect(results).to eq('')
+      end
+
+      after(:each) do
+        File.delete(file_path)
+      end
+    end
   end
 end

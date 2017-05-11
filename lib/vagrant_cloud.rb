@@ -6,4 +6,5 @@ module VagrantCloud
   require 'vagrant_cloud/box'
   require 'vagrant_cloud/version'
   require 'vagrant_cloud/provider'
+  require 'vagrant_cloud/cli'
 end

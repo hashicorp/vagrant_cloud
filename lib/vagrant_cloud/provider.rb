@@ -25,17 +25,34 @@ module VagrantCloud
 
     # @return [Hash]
     def data
-      @data ||= account.request('get', "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}")
+      @data ||= account.request('get', provider_path)
     end
 
     # @param [String] url
     def update(url)
       params = { url: url }
-      @data = account.request('put', "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}", provider: params)
+      @data = account.request('put', provider_path, provider: params)
     end
 
     def delete
-      account.request('delete', "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}")
+      account.request('delete', provider_path)
+    end
+
+    # @return [String]
+    def upload_url
+      account.request('get', "#{provider_path}/upload")['upload_path']
+    end
+
+    # @param [String] file_path
+    def upload_file(file_path)
+      url = upload_url
+      payload = File.read(file_path)
+      RestClient::Request.execute(
+        method: :put,
+        url: url,
+        payload: payload,
+        ssl_version: 'TLSv1'
+      )
     end
 
     private
@@ -48,6 +65,10 @@ module VagrantCloud
     # @return [Account]
     def account
       box.account
+    end
+
+    def provider_path
+      "/box/#{account.username}/#{box.name}/version/#{version.number}/provider/#{name}"
     end
   end
 end

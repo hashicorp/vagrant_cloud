@@ -8,11 +8,7 @@ module VagrantCloud
 
     describe '#initialize' do
       it 'stores data' do
-        data = {
-          'version' => '1.2',
-          'description_markdown' => 'desc-markdown',
-          'status' => 'unreleased'
-        }
+        data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
         version = VagrantCloud::Version.new(box, '1.2', data)
 
         expect(version.box).to eq(box)
@@ -31,9 +27,7 @@ module VagrantCloud
         stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2').with(
           body: {
             access_token: 'my-token',
-            version: {
-              description: 'my-desc'
-            }
+            version: { description: 'my-desc' }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
@@ -85,22 +79,28 @@ module VagrantCloud
 
     describe '.create_provider' do
       it 'sends a POST request and returns the right instance' do
-        result = {
-          'foo' => 'foo'
-        }
+        result = { 'foo' => 'foo' }
         stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
           body: {
             access_token: 'my-token',
-            provider: {
-              name: 'my-prov',
-              url: 'http://example.com'
-            }
+            provider: { name: 'my-prov', url: 'http://example.com' }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
         version = VagrantCloud::Version.new(box, '1.2')
         provider = version.create_provider('my-prov', 'http://example.com')
 
+        expect(provider).to be_a(Provider)
+        expect(provider.data).to eq(result)
+      end
+
+      it 'sends a POST request without a provider_url and creates an instance' do
+        result = { 'foo' => 'foo' }
+        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
+          body: { access_token: 'my-token', provider: { name: 'my-prov' } }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        provider = VagrantCloud::Version.new(box, '1.2').create_provider('my-prov')
         expect(provider).to be_a(Provider)
         expect(provider.data).to eq(result)
       end
