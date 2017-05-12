@@ -21,3 +21,12 @@ provider = version.ensure_provider('virtualbox', 'http://example.com/foo.box')
 version.release
 puts provider.download_url
 ```
+
+Development & Contributing
+--------------------------
+Pull requests are very welcome! Please try to follow these simple rules if applicable:
+
+* Make sure you run `bundle exec rspec` before creating a pull request.  all specs must pass and all new code needs test coverage
+* Run `rubocop` locally before pulling
+* Update the README as appropriate
+* Please do not change the version number.
