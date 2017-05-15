@@ -19,7 +19,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec', '~> 3.0'
   s.add_development_dependency 'webmock', '~> 3.0'
   s.add_development_dependency 'rubocop', '~> 0.41.2'
-  s.add_development_dependency 'pry'
-  s.add_development_dependency 'guard'
-  s.add_development_dependency 'guard-rspec'
 end

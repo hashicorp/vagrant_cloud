@@ -22,6 +22,14 @@ version.release
 puts provider.download_url
 ```
 
+Example CLI usage:
+```sh
+vagrant_cloud create_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
+vagrant_cloud create_provider --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
+vagrant_cloud upload_file --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION --provider_file_path $PACKAGE_PATH
+```
+If you installed vagrant_cloud with bundler, then you may have to invoke using `bundle exec vagrant_cloud`
+
 Development & Contributing
 --------------------------
 Pull requests are very welcome! Please try to follow these simple rules if applicable:
