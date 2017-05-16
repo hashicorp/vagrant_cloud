@@ -20,6 +20,13 @@ module VagrantCloud
       version
     end
 
+    desc 'release_version', 'release the specified version within a given box'
+    def release_version(version_str = options[:version])
+      version = current_box.get_version(version_str)
+      puts "Box #{options[:box]} / version: #{versoin.version}; current status is #{version.status}" if options[:verbose]
+      true
+    end
+
     desc 'create_provider', 'creates a provider within a given box and version'
     def create_provider
       provider = current_version.create_provider(options[:provider], options[:provider_url])

@@ -43,6 +43,11 @@ module VagrantCloud
       end
     end
 
+    describe '.release_version' do
+      let(:command) { 'release_version' }
+      it { is_expected.to eq(true) }
+    end
+
     describe '.create_provider' do
       let(:command) { 'create_provider' }
       let(:provider_url) { 'http://example.org/file.box' }
