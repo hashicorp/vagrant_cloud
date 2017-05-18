@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.license     = 'MIT'
   s.executables << 'vagrant_cloud'
 
-  s.add_runtime_dependency 'rest-client', '~> 1.7'
+  s.add_runtime_dependency 'rest-client', '~> 2.0.2'
   s.add_runtime_dependency 'thor', '~> 0.19.4'
 
   s.add_development_dependency 'rake', '~> 10.4'
