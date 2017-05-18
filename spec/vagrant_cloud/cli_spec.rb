@@ -51,25 +51,30 @@ module VagrantCloud
     describe '.create_provider' do
       let(:command) { 'create_provider' }
       let(:provider_url) { 'http://example.org/file.box' }
-      let(:provider_file_path) { './example.box' }
+      
       it { is_expected.to eq(provider) }
-    end
-
-    describe '.versions' do
-      let(:command) { 'versions' }
-      it { is_expected.to eq([version]) }
     end
 
     describe '.upload_file' do
       let(:command) { 'upload_file' }
 
-      before(:each) do
-        argv.push('--provider_file_path', './example.box')
+      context 'when --provider_file_path provided' do
+        before(:each) do
+          argv.push('--provider_file_path', './example.box')
+        end
+
+        it 'uploads a file to an existing provider' do
+          expect(provider).to receive(:upload_file)
+          subject
+        end
       end
 
-      it 'uploads a file to an existing provider' do
-        expect(provider).to receive(:upload_file)
-        subject
+      context 'when --provider_file_path not provided' do
+
+        it 'uploads a file to an existing provider' do
+          expect(provider).not_to receive(:upload_file)
+          expect { subject }.to output(/No value provided for required options \'--provider-file-path\'/).to_stderr
+        end
       end
     end
   end
