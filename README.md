@@ -24,9 +24,25 @@ puts provider.download_url
 
 Development & Contributing
 --------------------------
-Pull requests are very welcome! Please try to follow these simple rules if applicable:
+Pull requests are very welcome!
 
-* Make sure you run `bundle exec rspec` before creating a pull request.  all specs must pass and all new code needs test coverage
-* Run `rubocop` locally before pulling
-* Update the README as appropriate
-* Please do not change the version number.
+Install dependencies:
+```
+bundle install
+```
+
+Run the tests:
+```
+bundle exec rspec
+```
+
+Check the code syntax:
+```
+bundle exec rubocop
+```
+
+Release a new version:
+
+1. Bump the version in `vagrant_cloud.gemspec`, merge to master.
+2. Push a new tag to master.
+3. Release to RubyGems with `bundle exec rake release`.
