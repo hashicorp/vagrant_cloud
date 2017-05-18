@@ -6,7 +6,7 @@ module VagrantCloud
     subject { described_class.start(argv) }
     let(:account) { double('account', get_box: box) }
     let(:box) { double('box', create_version: version, get_version: version, versions: [version]) }
-    let(:version) { double('version', version: version_number, status: 'unreleased', create_provider: provider, get_provider: provider) }
+    let(:version) { double('version', version: version_number, status: 'unreleased', create_provider: provider, get_provider: provider, release: true ) }
     let(:version_number) { '1.2.1' }
     let(:provider) { double('provider', upload_url: upload_url, upload_file: {}, data: provider_data) }
     let(:upload_url) { 'http://example.org/fake_upload_endpoint' }

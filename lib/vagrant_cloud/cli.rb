@@ -23,6 +23,7 @@ module VagrantCloud
     desc 'release_version', 'release the specified version within a given box'
     def release_version(version_str = options[:version])
       version = current_box.get_version(version_str)
+      version.release
       puts "Box #{options[:box]} / version: #{versoin.version}; current status is #{version.status}" if options[:verbose]
       true
     end
