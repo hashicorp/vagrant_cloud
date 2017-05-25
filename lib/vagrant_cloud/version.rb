@@ -71,8 +71,8 @@ module VagrantCloud
     # @param [String] name
     # @param [String] url
     # @return [Provider]
-    def create_provider(name, url)
-      params = { name: name, url: url }
+    def create_provider(name, url = nil)
+      params = { name: name, url: url }.delete_if { |_k, v| v.nil? }
       data = account.request('post', "/box/#{account.username}/#{box.name}/version/#{number}/providers", provider: params)
       get_provider(name, data)
     end

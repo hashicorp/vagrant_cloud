@@ -22,6 +22,16 @@ version.release
 puts provider.download_url
 ```
 
+Example CLI usage:
+Create a version and provider within an existing Box, upload a file to be hosted by Vagrant/Atlas, and release the version
+```sh
+vagrant_cloud create_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
+vagrant_cloud create_provider --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
+vagrant_cloud upload_file --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION --provider_file_path $PACKAGE_PATH
+vagrant_cloud release_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
+```
+If you installed vagrant_cloud with bundler, then you may have to invoke using `bundle exec vagrant_cloud`
+
 Development & Contributing
 --------------------------
 Pull requests are very welcome!
