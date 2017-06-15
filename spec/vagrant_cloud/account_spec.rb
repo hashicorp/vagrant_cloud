@@ -14,14 +14,14 @@ module VagrantCloud
 
     describe '.request' do
       it 'parses GET response' do
-        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/foo')
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo')
           .to_return(status: 200, body: JSON.dump(bar: 'bar'))
 
         expect(account.request(:get, '/foo')).to eq('bar' => 'bar')
       end
 
       it 'sends POST params and parses response' do
-        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/foo').with(
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/foo').with(
           body: {
             access_token: 'my-token',
             foo: 'foo'
@@ -32,7 +32,7 @@ module VagrantCloud
       end
 
       it 'raises on errors' do
-        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/foo')
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo')
           .to_return(status: 200, body: JSON.dump(errors: 'bar'))
 
         expect { account.request(:get, '/foo', foo: 'foo') }
@@ -43,15 +43,17 @@ module VagrantCloud
     describe '.create_box' do
       it 'creates and returns box' do
         result = { 'return_foo' => 'foo' }
-        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/boxes').with(body:             {
-                                                                               access_token: 'my-token',
-                                                                               box: {
-                                                                                 name: 'my-name',
-                                                                                 description: 'my-desc',
-                                                                                 short_description: 'my-desc',
-                                                                                 is_private: 'true'
-                                                                               }
-                                                                             }).to_return(status: 200, body: JSON.dump(result))
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(
+          body: {
+            access_token: 'my-token',
+            box: {
+              name: 'my-name',
+              description: 'my-desc',
+              short_description: 'my-desc',
+              is_private: 'true'
+            }
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
 
         box = account.create_box('my-name',
                                  description: 'my-desc',
@@ -64,14 +66,16 @@ module VagrantCloud
       context 'when not passing :is_private' do
         it 'creates a public box' do
           result = { 'return_foo' => 'foo' }
-          stub_request(:post, 'https://atlas.hashicorp.com/api/v1/boxes').with(body:              {
-                                                                                 access_token: 'my-token',
-                                                                                 box: {
-                                                                                   name: 'my-name',
-                                                                                   description: 'my-desc',
-                                                                                   is_private: 'false'
-                                                                                 }
-                                                                               }).to_return(status: 200, body: JSON.dump(result))
+          stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(
+            body: {
+              access_token: 'my-token',
+              box: {
+                name: 'my-name',
+                description: 'my-desc',
+                is_private: 'false'
+              }
+            }
+          ).to_return(status: 200, body: JSON.dump(result))
 
           box = account.create_box('my-name', description: 'my-desc')
           expect(box).to be_a(Box)
