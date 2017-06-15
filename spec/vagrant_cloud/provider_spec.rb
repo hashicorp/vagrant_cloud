@@ -27,7 +27,7 @@ module VagrantCloud
         result = {
           'foo' => 'foo'
         }
-        stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
           body: {
             access_token: 'my-token',
             provider: {
@@ -45,7 +45,7 @@ module VagrantCloud
 
     describe '.delete' do
       it 'sends a DELETE request' do
-        stub_request(:delete, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
           body: {
             access_token: 'my-token'
           }
@@ -58,7 +58,7 @@ module VagrantCloud
 
     describe '.upload_url' do
       it 'sends a POST request' do
-        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
           body: {
             access_token: 'my-token'
           }
@@ -86,7 +86,7 @@ module VagrantCloud
       end
 
       it 'sends a PUT request to upload a file' do
-        stub_request(:get, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
           body: {
             access_token: 'my-token'
           }

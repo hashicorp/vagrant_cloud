@@ -77,7 +77,7 @@ module VagrantCloud
 
     # @return [String]
     def url_base
-      'https://atlas.hashicorp.com/api/v1'
+      'https://vagrantcloud.com/api/v1'
     end
 
     # @param [Array] args
@@ -85,7 +85,7 @@ module VagrantCloud
     def box_params(*args)
       # Prepares a hash based on the *args array passed in.
       # Acceptable parameters are those documented by Hashicorp for the v1 API
-      # at https://atlas.hashicorp.com/docs
+      # at https://vagrantcloud.com/docs
 
       # This dance is to simulate what we could have accomplished with **args
       # in Ruby 2.0+

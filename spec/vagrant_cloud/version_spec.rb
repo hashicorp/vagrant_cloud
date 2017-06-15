@@ -24,7 +24,7 @@ module VagrantCloud
         result = {
           'foo' => 'foo'
         }
-        stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2').with(
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2').with(
           body: {
             access_token: 'my-token',
             version: { description: 'my-desc' }
@@ -40,7 +40,7 @@ module VagrantCloud
 
     describe '.delete' do
       it 'sends a DELETE request' do
-        stub_request(:delete, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2').with(
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2').with(
           body: {
             access_token: 'my-token'
           }
@@ -53,7 +53,7 @@ module VagrantCloud
 
     describe '.release' do
       it 'sends a PUT request' do
-        stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/release').with(
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/release').with(
           body: {
             access_token: 'my-token'
           }
@@ -66,7 +66,7 @@ module VagrantCloud
 
     describe '.revoke' do
       it 'sends a PUT request' do
-        stub_request(:put, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/revoke').with(
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/revoke').with(
           body: {
             access_token: 'my-token'
           }
@@ -80,7 +80,7 @@ module VagrantCloud
     describe '.create_provider' do
       it 'sends a POST request and returns the right instance' do
         result = { 'foo' => 'foo' }
-        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
           body: {
             access_token: 'my-token',
             provider: { name: 'my-prov', url: 'http://example.com' }
@@ -96,7 +96,7 @@ module VagrantCloud
 
       it 'sends a POST request without a provider_url and creates an instance' do
         result = { 'foo' => 'foo' }
-        stub_request(:post, 'https://atlas.hashicorp.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/providers').with(
           body: { access_token: 'my-token', provider: { name: 'my-prov' } }
         ).to_return(status: 200, body: JSON.dump(result))
 
