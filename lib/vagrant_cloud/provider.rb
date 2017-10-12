@@ -46,7 +46,7 @@ module VagrantCloud
     # @param [String] file_path
     def upload_file(file_path)
       url = upload_url
-      payload = File.read(file_path)
+      payload = File.open(file_path, 'r')
       RestClient::Request.execute(
         method: :put,
         url: url,
