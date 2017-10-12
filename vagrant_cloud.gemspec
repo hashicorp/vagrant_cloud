@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'vagrant_cloud'
-  s.version     = '1.0.0'
+  s.version     = '1.1.0'
   s.summary     = 'HashiCorp Atlas API client'
   s.description = 'Minimalistic ruby client for the HashiCorp Atlas API (previously Vagrant Cloud API)'
   s.authors     = ['Cargo Media']
