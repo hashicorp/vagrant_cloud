@@ -2,7 +2,7 @@ vagrant_cloud
 =============
 Minimalistic ruby client for the [HashiCorp Atlas API](https://vagrantcloud.com/docs) (previously *Vagrant Cloud API*).
 
-[![Build Status](https://img.shields.io/travis/cargomedia/vagrant_cloud/master.svg)](https://travis-ci.org/cargomedia/vagrant_cloud)
+[![Build Status](https://img.shields.io/travis/hashicorp/vagrant_cloud/master.svg)](https://travis-ci.org/hashicorp/vagrant_cloud)
 [![Gem Version](https://img.shields.io/gem/v/vagrant_cloud.svg)](https://rubygems.org/gems/vagrant_cloud)
 
 
@@ -56,3 +56,8 @@ Release a new version:
 1. Bump the version in `vagrant_cloud.gemspec`, merge to master.
 2. Push a new tag to master.
 3. Release to RubyGems with `bundle exec rake release`.
+
+History
+-------
+This gem has been developed and maintained by [Cargo Media](https://www.cargomedia.ch) since April 2014.
+HashiCorp became the official maintainer in October 2017.
