@@ -56,3 +56,8 @@ Release a new version:
 1. Bump the version in `vagrant_cloud.gemspec`, merge to master.
 2. Push a new tag to master.
 3. Release to RubyGems with `bundle exec rake release`.
+
+History
+-------
+This gem has been developed and maintained by [Cargo Media](https://www.cargomedia.ch) since April 2014.
+HashiCorp became the official maintainer in October 2017.
