@@ -23,7 +23,7 @@ puts provider.download_url
 ```
 
 Example CLI usage:
-Create a version and provider within an existing Box, upload a file to be hosted by Vagrant/Atlas, and release the version
+Create a version and provider within an existing Box, upload a file to be hosted by Vagrant Cloud, and release the version
 ```sh
 vagrant_cloud create_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
 vagrant_cloud create_provider --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
