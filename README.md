@@ -1,6 +1,6 @@
 vagrant_cloud
 =============
-Minimalistic ruby client for the [HashiCorp Atlas API](https://vagrantcloud.com/docs) (previously *Vagrant Cloud API*).
+Ruby client for the [Vagrant Cloud API](https://www.vagrantup.com/docs/vagrant-cloud/api.html).
 
 [![Build Status](https://img.shields.io/travis/hashicorp/vagrant_cloud/master.svg)](https://travis-ci.org/hashicorp/vagrant_cloud)
 [![Gem Version](https://img.shields.io/gem/v/vagrant_cloud.svg)](https://rubygems.org/gems/vagrant_cloud)
