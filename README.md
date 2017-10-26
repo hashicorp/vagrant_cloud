@@ -1,6 +1,6 @@
 vagrant_cloud
 =============
-Minimalistic ruby client for the [HashiCorp Atlas API](https://vagrantcloud.com/docs) (previously *Vagrant Cloud API*).
+Ruby client for the [Vagrant Cloud API](https://www.vagrantup.com/docs/vagrant-cloud/api.html).
 
 [![Build Status](https://img.shields.io/travis/hashicorp/vagrant_cloud/master.svg)](https://travis-ci.org/hashicorp/vagrant_cloud)
 [![Gem Version](https://img.shields.io/gem/v/vagrant_cloud.svg)](https://rubygems.org/gems/vagrant_cloud)
@@ -23,7 +23,7 @@ puts provider.download_url
 ```
 
 Example CLI usage:
-Create a version and provider within an existing Box, upload a file to be hosted by Vagrant/Atlas, and release the version
+Create a version and provider within an existing Box, upload a file to be hosted by Vagrant Cloud, and release the version
 ```sh
 vagrant_cloud create_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
 vagrant_cloud create_provider --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION

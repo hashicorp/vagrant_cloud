@@ -36,10 +36,10 @@ module VagrantCloud
       provider
     end
 
-    desc 'upload_file', 'upload a file for Atlas to host to an existing version and provider'
+    desc 'upload_file', 'upload a file for Vagrant Cloud to host to an existing version and provider'
     method_option :version, alias: '-v', required: true, desc: 'version within the box'
     method_option :provider, alias: '-p', default: 'virtualbox', desc: 'the provider for the box; default: virtualbox'
-    method_option :provider_file_path, alias: '-pfp', required: true, desc: 'path to file to be uploaded for Atlast hosting'
+    method_option :provider_file_path, alias: '-pfp', required: true, desc: 'path to file to be uploaded for Vagrant Cloud hosting'
     def upload_file
       get_provider(options[:provider]).upload_file(options[:provider_file_path])
     end
