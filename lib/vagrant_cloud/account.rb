@@ -60,11 +60,17 @@ module VagrantCloud
     # @param [Hash] params
     # @return [Hash]
     def request(method, path, params = {})
-      params[:access_token] = access_token
+      headers = {}
+
+      if access_token
+        headers['Authorization'] = "Bearer #{access_token}"
+      end
+
       result = RestClient::Request.execute(
         method: method,
         url: url_base + path,
         payload: params,
+        headers: headers,
         ssl_version: 'TLSv1'
       )
       result = JSON.parse(result)

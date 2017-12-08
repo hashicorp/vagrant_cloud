@@ -12,7 +12,15 @@ module VagrantCloud
       end
     end
 
-    describe '.request' do
+    describe '#request' do
+      it "includes an Authorization header" do
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/foo')
+          .with(headers: { "Authorization" => "Bearer my-token" })
+          .to_return(status: 200, body: JSON.dump(bar: 'bar'))
+
+        expect(account.request(:get, '/foo')).to eq('bar' => 'bar')
+      end
+
       it 'parses GET response' do
         stub_request(:get, 'https://vagrantcloud.com/api/v1/foo')
           .to_return(status: 200, body: JSON.dump(bar: 'bar'))
@@ -23,7 +31,6 @@ module VagrantCloud
       it 'sends POST params and parses response' do
         stub_request(:post, 'https://vagrantcloud.com/api/v1/foo').with(
           body: {
-            access_token: 'my-token',
             foo: 'foo'
           }
         ).to_return(status: 200, body: JSON.dump(bar: 'bar'))
@@ -45,7 +52,6 @@ module VagrantCloud
         result = { 'return_foo' => 'foo' }
         stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(
           body: {
-            access_token: 'my-token',
             box: {
               name: 'my-name',
               description: 'my-desc',
@@ -68,7 +74,6 @@ module VagrantCloud
           result = { 'return_foo' => 'foo' }
           stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(
             body: {
-              access_token: 'my-token',
               box: {
                 name: 'my-name',
                 description: 'my-desc',
