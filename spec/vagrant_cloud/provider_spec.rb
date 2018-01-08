@@ -29,7 +29,6 @@ module VagrantCloud
         }
         stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
           body: {
-            access_token: 'my-token',
             provider: {
               url: 'http://example.com'
             }
@@ -45,11 +44,8 @@ module VagrantCloud
 
     describe '.delete' do
       it 'sends a DELETE request' do
-        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
-          body: {
-            access_token: 'my-token'
-          }
-        ).to_return(status: 200, body: JSON.dump({}))
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov')
+          .to_return(status: 200, body: JSON.dump({}))
 
         provider = Provider.new(version, 'my-prov')
         provider.delete
@@ -58,11 +54,8 @@ module VagrantCloud
 
     describe '.upload_url' do
       it 'sends a POST request' do
-        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
-          body: {
-            access_token: 'my-token'
-          }
-        ).to_return(status: 200, body: JSON.dump({}))
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload')
+          .to_return(status: 200, body: JSON.dump({}))
 
         provider = Provider.new(version, 'my-prov')
         provider.upload_url
@@ -86,11 +79,8 @@ module VagrantCloud
       end
 
       it 'sends a PUT request to upload a file' do
-        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload').with(
-          body: {
-            access_token: 'my-token'
-          }
-        ).to_return(status: 200, body: JSON.dump(response))
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov/upload')
+          .to_return(status: 200, body: JSON.dump(response))
         stub_request(:put, response['upload_path']).with(body: File.read(file_path)).to_return(status: 200, body: '')
 
         results = provider.upload_file(file_path)
