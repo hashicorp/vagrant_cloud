@@ -5,13 +5,83 @@ module VagrantCloud
 
     # @param [String] username
     # @param [String] access_token
-    def initialize(username, access_token)
+    def initialize(username, access_token, custom_server=nil)
       @username = username
       @access_token = access_token
+      @client = Client.new(access_token, custom_server)
     end
 
+    #---------------------------
+    # Authentication API Helpers
+    #---------------------------
+
+    # @param [String] password
+    # @param [String] description
+    # @param [String] 2FA code
+    # @return [Hash] response body
+    def create_token(password, description=nil, code=nil)
+      token_data_params = {
+        token: {description: description},
+        user:  {login: @username, password: password},
+        two_factor: code
+      }.delete_if { |_, v| v.nil? }
+
+      token_response = @client.request('post', '/authenticate', token_data_params)
+      token_response
+    end
+
+    # @param [String] token
+    def delete_token(access_token=nil)
+      token_response = @client.request('delete', '/authenticate', nil, access_token)
+      token_response
+    end
+
+    # Validates a token on the account or a one-off validation token request.
+    # Will return nil if token is valid, otherwise will return Hash of response
+    # from Vagrant Cloud
+    #
+    # @param [String] access_token
+    # @return [Hash] response body
+    def validate_token(access_token=nil)
+      token_response = @client.request('get', '/authenticate', nil, access_token)
+      token_response
+    end
+
+    # @param [String] delivery_method
+    # @param [String] password
+    # @return [Hash] response body
+    def request_2fa_code(delivery_method, password)
+      twofa_code_params = {
+        two_factor: { delivery_method: delivery_method },
+        user: { login: @username, password: password }
+      }
+
+      code_response = @client.request('post', '/two-factor/request-code', twofa_code_params)
+      code_response
+    end
+
+    #---------------------------
+    # Organization API Helpers
+    #---------------------------
+
+    # @param [String] - organization
+    # @return [Hash]
+    def read_organization(org=nil)
+      if org
+        name = org
+      else
+        name = @username
+      end
+
+      @client.request('get', "/user/#{name}")
+    end
+
+    #--------------------
+    # Old Box API Helpers
+    #--------------------
+
     # @param [String] name
-    # @param [Hash]
+    # @param [Hash] data
     # @return [Box]
     def get_box(name, data = nil)
       Box.new(self, name, data)
@@ -24,7 +94,7 @@ module VagrantCloud
       params = box_params(*args)
       params[:name] = name
 
-      data = request('post', '/boxes', box: params)
+      data = @client.request('post', '/boxes', box: params)
       get_box(name, data)
     end
 
@@ -55,6 +125,12 @@ module VagrantCloud
       box
     end
 
+    #--------------------
+    # Old Box API Helpers
+    #--------------------
+
+    # REMOVED IN FAVOR OF CLIENT CLASS, but still exists to support any old clients
+    #
     # @param [String] method
     # @param [String] path
     # @param [Hash] params

@@ -3,7 +3,8 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Provider do
-    let (:account) { Account.new('my-acc', 'my-token') }
+    let (:token) { 'my-token' }
+    let (:account) { Account.new('my-acc', token) }
     let (:box) { Box.new(account, 'my-box') }
     let (:version) { VagrantCloud::Version.new(box, '1.2') }
 
@@ -40,6 +41,22 @@ module VagrantCloud
 
         expect(provider.data).to eq(result)
       end
+
+      it 'sends a PUT request for one-off providers' do
+        result = {
+          'foo' => 'foo'
+        }
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0.0/provider/virtualbox').with(
+          body: {
+            provider: {
+              url: 'http://example.com'
+            }
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        provider = Provider.new(version, 'my-prov', nil, token)
+        expect(provider.update('http://example.com', 'hashicorp', 'precise64', '2.0.0', 'virtualbox')).to eq(result)
+      end
     end
 
     describe '.delete' do
@@ -50,6 +67,15 @@ module VagrantCloud
         provider = Provider.new(version, 'my-prov')
         provider.delete
       end
+
+      it 'sends a DELETE request for a one off request' do
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0.0/provider/virtualbox')
+          .to_return(status: 200, body: JSON.dump({}))
+
+        provider = Provider.new(version, 'anything')
+        provider.delete('hashicorp', 'precise64', '2.0.0', 'virtualbox')
+      end
+
     end
 
     describe '.upload_url' do
@@ -59,6 +85,14 @@ module VagrantCloud
 
         provider = Provider.new(version, 'my-prov')
         provider.upload_url
+      end
+
+      it 'sends a POST request for one-off requests' do
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0.0/provider/virtualbox/upload')
+          .to_return(status: 200, body: JSON.dump({}))
+
+        provider = Provider.new(version, 'my-prov')
+        provider.upload_url('hashicorp', 'precise64', '2.0.0', 'virtualbox')
       end
     end
 
@@ -87,8 +121,31 @@ module VagrantCloud
         expect(results).to eq('')
       end
 
+      it 'sends a PUT request to upload a file for a one-off request' do
+        stub_request(:get, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0/provider/virtualbox/upload")
+          .to_return(status: 200, body: JSON.dump(response))
+        stub_request(:put, response['upload_path']).with(body: File.read(file_path)).to_return(status: 200, body: '')
+        results = provider.upload_file(file_path, 'hashicorp', 'precise64', '2.0', 'virtualbox')
+        expect(results).to eq('')
+      end
+
       after(:each) do
         File.delete(file_path)
+      end
+    end
+
+    describe ".provider_path" do
+      it "returns a path to create a version with the given objects attributes" do
+        data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
+        provider = VagrantCloud::Provider.new(version, "virtualbox", nil, token)
+        expect(provider.send(:provider_path)).to eq("/box/my-acc/my-box/version/1.2/provider/virtualbox")
+      end
+
+      it "returns a path to create a version for a one off version" do
+        data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
+        provider = VagrantCloud::Provider.new(version, "virtualbox", nil, token)
+        expect(provider.send(:provider_path, "hashicorp", "precise64", "2.2", "virtualbox"))
+          .to eq("/box/hashicorp/precise64/version/2.2/provider/virtualbox")
       end
     end
   end

@@ -22,6 +22,10 @@ version.release
 puts provider.download_url
 ```
 
+__NOTE:__ As of version 2.0.0, the CLI has been deprecated in favor of the `vagrant cloud`
+command. More information about how to use the `vagrant cloud` command can be found
+on the [Vagrant documentation](https://www.vagrantup.com/docs/cli/cloud.html).
+
 Example CLI usage:
 Create a version and provider within an existing Box, upload a file to be hosted by Vagrant Cloud, and release the version
 ```sh

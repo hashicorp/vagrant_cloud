@@ -1,3 +1,4 @@
 /Gemfile.lock
 /vendor
 /.bundle
+*.gem
