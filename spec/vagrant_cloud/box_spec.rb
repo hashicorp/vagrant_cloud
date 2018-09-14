@@ -3,7 +3,9 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-    let (:account) { Account.new('my-acc', 'my-token') }
+    let (:token) { 'my-token' }
+    let (:account) { Account.new('my-acc', token) }
+    let (:client) { Account.new(token) }
 
     describe '#initialize' do
       it 'stores data' do
@@ -13,7 +15,7 @@ module VagrantCloud
           'private' => false,
           'versions' => []
         }
-        box = Box.new(account, 'foo', data)
+        box = Box.new(account, 'foo', data, 'desc-short', 'desc-markdown', token)
 
         expect(box.account).to eq(account)
         expect(box.data).to eq(data)
@@ -59,6 +61,30 @@ module VagrantCloud
 
         expect(box.data).to eq(result)
       end
+
+      it "sends a PUT request for a one-off update" do
+        result = {
+          'foo' => 'foo'
+        }
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/brian/test123').with(
+          body: {
+            box: {
+              short_description: 'my-desc',
+              description: 'my-desc',
+              is_private: 'true',
+              organization: 'brian',
+              name: 'test123'
+            }
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        box = Box.new(account, 'foo')
+        expect(box.update(description: 'my-desc',
+                   short_description: 'my-desc',
+                   is_private: true,
+                   organization: 'brian',
+                   name: 'test123')).to eq(result)
+      end
     end
 
     describe '.delete' do
@@ -69,7 +95,53 @@ module VagrantCloud
         box = Box.new(account, 'foo')
         box.delete
       end
+
+      it "sends a DELETE request for a one-off box" do
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-org/my-box')
+          .to_return(status: 200, body: JSON.dump({}))
+
+        box = Box.new(account, 'foo')
+        box.delete('my-org', 'my-box')
+      end
     end
+
+    describe ".read" do
+      it "returns information about a one-off box" do
+        result = {
+          'foo' => 'foo'
+        }
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/my-org/my-box')
+          .to_return(status: 200, body: JSON.dump(result))
+
+        box = Box.new(account, 'foo')
+        expect(box.read("my-org", "my-box")).to eq(result)
+      end
+    end
+
+    describe ".create" do
+      it "creates a one off box given params" do
+        result = {
+          'foo' => 'foo'
+        }
+        stub_request(:post, 'https://vagrantcloud.com/api/v1/boxes').with(
+          body: {
+            box: {
+              short_description: 'Short description',
+              description: 'Description',
+              is_private: false,
+              username: 'my-org',
+              name: 'my-box'
+            }
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        box = Box.new(account, 'foo')
+        expect(box.create("Short description", "Description", "my-org", "my-box", false))
+          .to eq(result)
+      end
+    end
+
+    # Old api methods
 
     describe '.create_version' do
       it 'sends a POST request and returns the right instance' do
@@ -124,6 +196,24 @@ module VagrantCloud
 
         version = box.ensure_version('1.2', 'my-desc2')
         expect(version).to eq(version_requested)
+      end
+    end
+
+    describe "#box_path" do
+      it "returns a box path based on an Account object" do
+        data = {
+          'description_markdown' => 'desc-markdown',
+          'short_description' => 'desc-short',
+          'private' => false,
+          'versions' => []
+        }
+        box = Box.new(account, 'foo', data)
+        expect(box.send(:box_path)).to eq("/box/my-acc/foo")
+      end
+
+      it "returns a box path based on the passed in params" do
+        box = Box.new(account, 'foo', {})
+        expect(box.send(:box_path, "my-org", "mybox")).to eq("/box/my-org/mybox")
       end
     end
   end
