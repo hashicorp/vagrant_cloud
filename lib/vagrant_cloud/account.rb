@@ -5,7 +5,7 @@ module VagrantCloud
 
     # @param [String] username
     # @param [String] access_token
-    def initialize(username, access_token, custom_server=nil)
+    def initialize(username, access_token, custom_server = nil)
       @username = username
       @access_token = access_token
       @client = Client.new(access_token, custom_server)
@@ -19,10 +19,10 @@ module VagrantCloud
     # @param [String] description
     # @param [String] 2FA code
     # @return [Hash] response body
-    def create_token(password, description=nil, code=nil)
+    def create_token(password, description = nil, code = nil)
       token_data_params = {
-        token: {description: description},
-        user:  {login: @username, password: password},
+        token: { description: description },
+        user:  { login: @username, password: password },
         two_factor: code
       }.delete_if { |_, v| v.nil? }
 
@@ -31,7 +31,7 @@ module VagrantCloud
     end
 
     # @param [String] token
-    def delete_token(access_token=nil)
+    def delete_token(access_token = nil)
       token_response = @client.request('delete', '/authenticate', nil, access_token)
       token_response
     end
@@ -42,7 +42,7 @@ module VagrantCloud
     #
     # @param [String] access_token
     # @return [Hash] response body
-    def validate_token(access_token=nil)
+    def validate_token(access_token = nil)
       token_response = @client.request('get', '/authenticate', nil, access_token)
       token_response
     end
@@ -66,7 +66,7 @@ module VagrantCloud
 
     # @param [String] - organization
     # @return [Hash]
-    def read_organization(org=nil)
+    def read_organization(org = nil)
       if org
         name = org
       else
@@ -152,6 +152,7 @@ module VagrantCloud
       result = JSON.parse(result)
       errors = result['errors']
       raise "Vagrant Cloud returned error: #{errors}" if errors
+
       result
     end
 

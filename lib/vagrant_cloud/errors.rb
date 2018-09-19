@@ -4,15 +4,14 @@ module VagrantCloud
     attr_accessor :error_code
 
     def initialize(msg, http_body, http_code)
-
       begin
         errors = JSON.parse(http_body)
-        vagrant_cloud_msg = errors["errors"]
+        vagrant_cloud_msg = errors['errors']
 
         if vagrant_cloud_msg.is_a?(Array)
-          message = msg + " - " + "#{vagrant_cloud_msg.join(", ")}"
+          message = msg + ' - ' + vagrant_cloud_msg.join(', ').to_s
         else
-          message = msg + " - " + vagrant_cloud_msg
+          message = msg + ' - ' + vagrant_cloud_msg
         end
       rescue JSON::ParserError => e
         message = msg

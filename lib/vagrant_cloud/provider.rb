@@ -8,7 +8,7 @@ module VagrantCloud
     # @param [String] name
     # @param [Hash] data
     # @param [String] access_token
-    def initialize(version, name, data = nil, url = nil, username = nil, box_name = nil, access_token = nil, custom_server=nil)
+    def initialize(version, name, data = nil, url = nil, username = nil, box_name = nil, access_token = nil, custom_server = nil)
       @version = version
       @name = name
       @data = data
@@ -41,7 +41,6 @@ module VagrantCloud
       @data ||= @client.request('get', provider_path)
     end
 
-
     # Creates a provider for *this* Provider object, or if all params are given,
     # will make a one-off request to create a Provider and return its data
     #
@@ -50,7 +49,7 @@ module VagrantCloud
     # @param [String] username
     # @param [String] box_name
     # @param [String] version_number
-    def create_provider(name=nil, url = nil, username=nil, box_name=nil, version_number=nil)
+    def create_provider(name = nil, url = nil, username = nil, box_name = nil, version_number = nil)
       update_data = !(username && version_number && provider_name && box_name)
       name ||= @name
       url ||= @url
@@ -61,7 +60,7 @@ module VagrantCloud
       params = { name: name, url: url }.delete_if { |_, v| v.nil? }
       data = @client.request('post', create_provider_path(username, box_name, version_number), provider: params)
 
-      @data = data if !(username && box_name && version_number)
+      @data = data if update_data
       data
     end
 
@@ -70,7 +69,7 @@ module VagrantCloud
     # @param [String] box_name
     # @param [String] version_number
     # @param [String] provider_name
-    def update(url=nil, username=nil, box_name=nil, version_number=nil, provider_name=nil)
+    def update(url = nil, username = nil, box_name = nil, version_number = nil, provider_name = nil)
       update_data = !(username && version_number && provider_name && box_name)
       provider_name ||= @name
       url ||= @url
@@ -79,8 +78,9 @@ module VagrantCloud
       version_number ||= @version
 
       params = { url: url }
-      data = @client.request('put', provider_path(username, box_name, version_number, provider_name),
-                              provider: params)
+      data = @client.request('put',
+                             provider_path(username, box_name, version_number, provider_name),
+                             provider: params)
 
       @data = data if update_data
       data
@@ -90,7 +90,7 @@ module VagrantCloud
     # @param [String] box_name
     # @param [String] version_number
     # @param [String] provider_name
-    def delete(username=nil, box_name=nil, version_number=nil, provider_name=nil)
+    def delete(username = nil, box_name = nil, version_number = nil, provider_name = nil)
       @client.request('delete', provider_path(username, box_name, version_number, provider_name))
     end
 
@@ -99,7 +99,7 @@ module VagrantCloud
     # @param [String] version_number
     # @param [String] provider_name
     # @return [String]
-    def upload_url(username=nil, box_name=nil, version_number=nil, provider_name=nil)
+    def upload_url(username = nil, box_name = nil, version_number = nil, provider_name = nil)
       @client.request('get', "#{provider_path(username, box_name, version_number, provider_name)}/upload")['upload_path']
     end
 
@@ -108,7 +108,7 @@ module VagrantCloud
     # @param [String] version_number
     # @param [String] provider_name
     # @param [String] file_path
-    def upload_file(file_path, username=nil, box_name=nil, version_number=nil, provider_name=nil)
+    def upload_file(file_path, username = nil, box_name = nil, version_number = nil, provider_name = nil)
       url = upload_url(username, box_name, version_number, provider_name)
       payload = File.open(file_path, 'r')
       RestClient::Request.execute(
@@ -131,7 +131,7 @@ module VagrantCloud
       box.account
     end
 
-    def create_provider_path(username=nil, box_name=nil, version_number=nil)
+    def create_provider_path(username = nil, box_name = nil, version_number = nil)
       if username && box_name && version_number
         "/box/#{username}/#{box_name}/version/#{version_number}/providers"
       else
@@ -139,7 +139,7 @@ module VagrantCloud
       end
     end
 
-    def provider_path(username=nil, box_name=nil, version_number=nil, provider_name=nil)
+    def provider_path(username = nil, box_name = nil, version_number = nil, provider_name = nil)
       if username && box_name && version_number && name
         "/box/#{username}/#{box_name}/version/#{version_number}/provider/#{provider_name}"
       else

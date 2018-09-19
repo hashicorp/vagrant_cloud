@@ -2,7 +2,7 @@ module VagrantCloud
   class Search
     attr_accessor :account
 
-    def initialize(access_token = nil, custom_server=nil)
+    def initialize(access_token = nil, custom_server = nil)
       @client = Client.new(access_token, custom_server)
     end
 
@@ -15,7 +15,7 @@ module VagrantCloud
     # @param [String] limit
     # @param [String] page
     # @return [Hash]
-    def search(query=nil, provider=nil, sort=nil, order=nil, limit=nil, page=nil)
+    def search(query = nil, provider = nil, sort = nil, order = nil, limit = nil, page = nil)
       params = {
         q: query,
         provider: provider,

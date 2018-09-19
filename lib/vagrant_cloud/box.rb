@@ -10,7 +10,7 @@ module VagrantCloud
     # @param [String] description
     # @param [String] short_description
     # @param [String] access_token
-    def initialize(account, name=nil, data = nil, short_description=nil, description=nil, access_token = nil, custom_server=nil)
+    def initialize(account, name = nil, data = nil, short_description = nil, description = nil, access_token = nil, custom_server = nil)
       @account = account
       @name = name
       @data = data
@@ -52,7 +52,7 @@ module VagrantCloud
     # @param [String] org - organization of the box to read
     # @param [String] box_name - name of the box to read
     # @return [Hash]
-    def delete(org=nil, box_name=nil)
+    def delete(org = nil, box_name = nil)
       @client.request('delete', box_path(org, box_name))
     end
 
@@ -61,7 +61,7 @@ module VagrantCloud
     # @param [String] org - organization of the box to read
     # @param [String] box_name - name of the box to read
     # @return [Hash]
-    def read(org=nil, box_name=nil)
+    def read(org = nil, box_name = nil)
       @client.request('get', box_path(org, box_name))
     end
 
@@ -69,7 +69,7 @@ module VagrantCloud
     # @param [String] description
     # @param [Bool] is_private
     # @return [Hash]
-    def create(short_description=nil, description=nil, org=nil, box_name=nil, is_private=false)
+    def create(short_description = nil, description = nil, org = nil, box_name = nil, is_private = false)
       update_data = !(org && box_name)
 
       org ||= account.username
@@ -82,7 +82,7 @@ module VagrantCloud
         username: org,
         is_private: is_private,
         short_description: short_description,
-        description: description,
+        description: description
       }.delete_if { |_, v| v.nil? }
 
       data = @client.request('post', '/boxes', box: params)
@@ -143,7 +143,7 @@ module VagrantCloud
     # @param [String] description
     # @return [Version]
     def ensure_version(name, description = nil)
-      version = versions.select { |version| version.version == name }.first
+      version = versions.select { |v| v.version == name }.first
       version = create_version(name, description) unless version
       if description && (description != version.description)
         version.update(description)
@@ -168,7 +168,7 @@ module VagrantCloud
     # @param [String] - username
     # @param [String] - box_name
     # @return [String] - API path to box
-    def box_path(username=nil, box_name=nil)
+    def box_path(username = nil, box_name = nil)
       if username && box_name
         "/box/#{username}/#{box_name}"
       else

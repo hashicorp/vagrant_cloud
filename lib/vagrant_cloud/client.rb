@@ -23,7 +23,7 @@ module VagrantCloud
     # @param [Hash] params
     # @param [String] token
     # @return [Hash]
-    def request(method, path, params = {}, token=nil)
+    def request(method, path, params = {}, token = nil)
       headers = {}
 
       if token

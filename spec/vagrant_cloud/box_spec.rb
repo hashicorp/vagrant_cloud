@@ -3,9 +3,9 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-    let (:token) { 'my-token' }
-    let (:account) { Account.new('my-acc', token) }
-    let (:client) { Account.new(token) }
+    let(:token) { 'my-token' }
+    let(:account) { Account.new('my-acc', token) }
+    let(:client) { Account.new(token) }
 
     describe '#initialize' do
       it 'stores data' do
@@ -62,7 +62,7 @@ module VagrantCloud
         expect(box.data).to eq(result)
       end
 
-      it "sends a PUT request for a one-off update" do
+      it 'sends a PUT request for a one-off update' do
         result = {
           'foo' => 'foo'
         }
@@ -80,10 +80,10 @@ module VagrantCloud
 
         box = Box.new(account, 'foo')
         expect(box.update(description: 'my-desc',
-                   short_description: 'my-desc',
-                   is_private: true,
-                   organization: 'brian',
-                   name: 'test123')).to eq(result)
+                          short_description: 'my-desc',
+                          is_private: true,
+                          organization: 'brian',
+                          name: 'test123')).to eq(result)
       end
     end
 
@@ -96,7 +96,7 @@ module VagrantCloud
         box.delete
       end
 
-      it "sends a DELETE request for a one-off box" do
+      it 'sends a DELETE request for a one-off box' do
         stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/my-org/my-box')
           .to_return(status: 200, body: JSON.dump({}))
 
@@ -105,8 +105,8 @@ module VagrantCloud
       end
     end
 
-    describe ".read" do
-      it "returns information about a one-off box" do
+    describe '.read' do
+      it 'returns information about a one-off box' do
         result = {
           'foo' => 'foo'
         }
@@ -114,12 +114,12 @@ module VagrantCloud
           .to_return(status: 200, body: JSON.dump(result))
 
         box = Box.new(account, 'foo')
-        expect(box.read("my-org", "my-box")).to eq(result)
+        expect(box.read('my-org', 'my-box')).to eq(result)
       end
     end
 
-    describe ".create" do
-      it "creates a one off box given params" do
+    describe '.create' do
+      it 'creates a one off box given params' do
         result = {
           'foo' => 'foo'
         }
@@ -136,7 +136,7 @@ module VagrantCloud
         ).to_return(status: 200, body: JSON.dump(result))
 
         box = Box.new(account, 'foo')
-        expect(box.create("Short description", "Description", "my-org", "my-box", false))
+        expect(box.create('Short description', 'Description', 'my-org', 'my-box', false))
           .to eq(result)
       end
     end
@@ -199,8 +199,8 @@ module VagrantCloud
       end
     end
 
-    describe "#box_path" do
-      it "returns a box path based on an Account object" do
+    describe '#box_path' do
+      it 'returns a box path based on an Account object' do
         data = {
           'description_markdown' => 'desc-markdown',
           'short_description' => 'desc-short',
@@ -208,12 +208,12 @@ module VagrantCloud
           'versions' => []
         }
         box = Box.new(account, 'foo', data)
-        expect(box.send(:box_path)).to eq("/box/my-acc/foo")
+        expect(box.send(:box_path)).to eq('/box/my-acc/foo')
       end
 
-      it "returns a box path based on the passed in params" do
+      it 'returns a box path based on the passed in params' do
         box = Box.new(account, 'foo', {})
-        expect(box.send(:box_path, "my-org", "mybox")).to eq("/box/my-org/mybox")
+        expect(box.send(:box_path, 'my-org', 'mybox')).to eq('/box/my-org/mybox')
       end
     end
   end

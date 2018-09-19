@@ -1,17 +1,27 @@
-inherit_from: .rubocop_todo.yml
+Lint/PercentStringArray:
+  Enabled: False
 
 Metrics/LineLength:
   Max: 160
 
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: False
+
+Style/ConditionalAssignment:
+  Enabled: False
+
 Style/Documentation:
   Enabled: false
 
-Style/MultilineBlockChain:
+Style/NegatedIf:
   Enabled: false
 
-Style/MutableConstant:
-  Exclude:
-    - lib/copperegg/alerts/version.rb
-
-Performance/PushSplat:
-  Enabled: false

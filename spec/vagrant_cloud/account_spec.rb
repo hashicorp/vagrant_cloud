@@ -3,7 +3,7 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Account do
-    let (:account) { Account.new('my-acc', 'my-token') }
+    let(:account) { Account.new('my-acc', 'my-token') }
 
     describe '#initialize' do
       it 'stores credentials' do
@@ -13,16 +13,17 @@ module VagrantCloud
     end
 
     describe '#create_token' do
-      let(:result) {{
-        "description"=> "one off token",
-        "token"=> "qwlIE1qBVUafsg.atlasv1.FLwfJSSYkl49i4qZIu8R31GBnI9r8DrW4IQKMppkGq5rD264lRksTqaIN0zY9Bmy0zs",
-        "token_hash"=> "7598236a879ecb42cb0f25399d6f25d1d2cfbbc6333392131bbdfba325eb352795c169daa4a61a8094d44afe817a857e0e5fc7dc72a1401eb434577337d1246c",
-        "created_at"=> "2017-10-18T19:16:24.956Z"}}
+      let(:result) { {
+        'description' => 'one off token',
+        'token' => 'qwlIE1qBVUafsg.atlasv1.FLwfJSSYkl49i4qZIu8R31GBnI9r8DrW4IQKMppkGq5rD264lRksTqaIN0zY9Bmy0zs',
+        'token_hash' => '7598236a879ecb42cb0f25399d6f25d1d2cfbbc6333392131bbdfba325eb352795c169daa4a61a8094d44afe817a857e0e5fc7dc72a1401eb434577337d1246c',
+        'created_at' => '2017-10-18T19:16:24.956Z'
+      } }
 
-      it "creates a token" do
+      it 'creates a token' do
         stub_request(:post, 'https://vagrantcloud.com/api/v1/authenticate')
-          .with(body: {"token"=>{"description"=>"one off token"},
-                "user"=>{"login"=>"my-acc", "password"=>"password"}})
+          .with(body: { 'token' => { 'description' => 'one off token' },
+                        'user' => { 'login' => 'my-acc', 'password' => 'password' } })
           .to_return(status: 200, body: JSON.dump(result))
 
         expect(account.create_token('password', 'one off token')).to eq(result)
@@ -30,18 +31,18 @@ module VagrantCloud
     end
 
     describe '#delete_token' do
-      it "deletes a token" do
+      it 'deletes a token' do
         stub_request(:delete, 'https://vagrantcloud.com/api/v1/authenticate')
-          .to_return(status: 200, body: "null")
+          .to_return(status: 200, body: 'null')
 
         expect(account.delete_token).to eq(nil)
       end
     end
 
     describe '#validate_token' do
-      it "validates a token" do
+      it 'validates a token' do
         stub_request(:get, 'https://vagrantcloud.com/api/v1/authenticate')
-          .to_return(status: 200, body: "null")
+          .to_return(status: 200, body: 'null')
 
         expect(account.validate_token).to eq(nil)
       end
@@ -51,9 +52,9 @@ module VagrantCloud
     end
 
     describe '#request' do
-      it "includes an Authorization header" do
+      it 'includes an Authorization header' do
         stub_request(:get, 'https://vagrantcloud.com/api/v1/foo')
-          .with(headers: { "Authorization" => "Bearer my-token" })
+          .with(headers: { 'Authorization' => 'Bearer my-token' })
           .to_return(status: 200, body: JSON.dump(bar: 'bar'))
 
         expect(account.request(:get, '/foo')).to eq('bar' => 'bar')

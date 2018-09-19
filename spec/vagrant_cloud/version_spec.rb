@@ -3,8 +3,8 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-    let (:account) { Account.new('my-acc', 'my-token') }
-    let (:box) { Box.new(account, 'my-box') }
+    let(:account) { Account.new('my-acc', 'my-token') }
+    let(:box) { Box.new(account, 'my-box') }
 
     describe '#initialize' do
       it 'stores data' do
@@ -36,18 +36,18 @@ module VagrantCloud
         expect(version.data).to eq(result)
       end
 
-      it "sents a PUT request and assigns the result for a one off version" do
+      it 'sents a PUT request and assigns the result for a one off version' do
         result = {
           'foo' => 'foo'
         }
-        stub_request(:put, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3").with(
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3').with(
           body: {
             version: { description: 'my-desc' }
           }
         ).to_return(status: 200, body: JSON.dump(result))
 
         version = VagrantCloud::Version.new(box, '1.2')
-        expect(version.update('my-desc', "hashicorp", "precise64", "1.2.3"))
+        expect(version.update('my-desc', 'hashicorp', 'precise64', '1.2.3'))
           .to eq(result)
       end
     end
@@ -62,11 +62,11 @@ module VagrantCloud
       end
 
       it 'sends a DELETE request for one-off versions' do
-        stub_request(:delete, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3")
+        stub_request(:delete, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3')
           .to_return(status: 200, body: JSON.dump({}))
 
         version = VagrantCloud::Version.new(box, '1.2')
-        version.delete("hashicorp", "precise64", "1.2.3")
+        version.delete('hashicorp', 'precise64', '1.2.3')
       end
     end
 
@@ -80,11 +80,11 @@ module VagrantCloud
       end
 
       it 'sends a PUT request for one off versions' do
-        stub_request(:put, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3/release")
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3/release')
           .to_return(status: 200, body: JSON.dump({}))
 
         version = VagrantCloud::Version.new(box, '1.2')
-        version.release("hashicorp", "precise64", "1.2.3")
+        version.release('hashicorp', 'precise64', '1.2.3')
       end
     end
 
@@ -98,11 +98,11 @@ module VagrantCloud
       end
 
       it 'sends a PUT request for one-off versions' do
-        stub_request(:put, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3/revoke")
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/1.2.3/revoke')
           .to_return(status: 200, body: JSON.dump({}))
 
         version = VagrantCloud::Version.new(box, '1.2')
-        version.revoke("hashicorp", "precise64", "1.2.3")
+        version.revoke('hashicorp', 'precise64', '1.2.3')
       end
     end
 
@@ -165,33 +165,33 @@ module VagrantCloud
       end
     end
 
-    describe ".create_version_path" do
-      it "returns a path to create a version with the given objects attributes" do
+    describe '.create_version_path' do
+      it 'returns a path to create a version with the given objects attributes' do
         data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
         version = VagrantCloud::Version.new(box, '1.2', data)
-        expect(version.send(:create_version_path)).to eq("/box/my-acc/my-box/versions")
+        expect(version.send(:create_version_path)).to eq('/box/my-acc/my-box/versions')
       end
 
-      it "returns a path to create a version for a one off version" do
+      it 'returns a path to create a version for a one off version' do
         data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
         version = VagrantCloud::Version.new(box, '1.2', data)
-        expect(version.send(:create_version_path, "hashicorp", "precise64"))
-          .to eq("/box/hashicorp/precise64/versions")
+        expect(version.send(:create_version_path, 'hashicorp', 'precise64'))
+          .to eq('/box/hashicorp/precise64/versions')
       end
     end
 
-    describe ".version_path" do
-      it "returns a path to create a version with the given objects attributes" do
+    describe '.version_path' do
+      it 'returns a path to create a version with the given objects attributes' do
         data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
         version = VagrantCloud::Version.new(box, '1.2', data)
-        expect(version.send(:version_path)).to eq("/box/my-acc/my-box/version/1.2")
+        expect(version.send(:version_path)).to eq('/box/my-acc/my-box/version/1.2')
       end
 
-      it "returns a path to create a version for a one off version" do
+      it 'returns a path to create a version for a one off version' do
         data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
         version = VagrantCloud::Version.new(box, '1.2', data)
-        expect(version.send(:version_path, "hashicorp", "precise64", "2.2"))
-          .to eq("/box/hashicorp/precise64/version/2.2")
+        expect(version.send(:version_path, 'hashicorp', 'precise64', '2.2'))
+          .to eq('/box/hashicorp/precise64/version/2.2')
       end
     end
   end

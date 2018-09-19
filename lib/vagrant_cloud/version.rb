@@ -9,12 +9,12 @@ module VagrantCloud
     # @param [Hash] data
     # @param [String] description
     # @param [String] access_token
-    def initialize(box, number, data = nil, description = nil, access_token = nil, custom_server=nil)
+    def initialize(box, number, data = nil, description = nil, access_token = nil, custom_server = nil)
       @box = box
       @number = number
       @data = data
       @description = description
-      @client = Client.new(access_token,custom_server)
+      @client = Client.new(access_token, custom_server)
     end
 
     #--------------------
@@ -59,7 +59,7 @@ module VagrantCloud
     # @param [String] box_name
     # @param [String] version_number
     # @return [Hash]
-    def read(username=nil, box_name=nil, version_number=nil)
+    def read(username = nil, box_name = nil, version_number = nil)
       @client.request('get', version_path(username, box_name, version_number))
     end
 
@@ -67,13 +67,13 @@ module VagrantCloud
     # @param [String] box_name
     # @param [String] version_number
     # @param [String] description
-    def update(description=nil, username=nil, box_name=nil, version_number=nil)
+    def update(description = nil, username = nil, box_name = nil, version_number = nil)
       update_data = !(username && box_name && version_number)
       description ||= @description
       version = { description: description }
       data = @client.request('put',
-                              version_path(username, box_name, version_number),
-                              version: version)
+                             version_path(username, box_name, version_number),
+                             version: version)
 
       @data = data if update_data
       data
@@ -82,14 +82,14 @@ module VagrantCloud
     # @param [String] username
     # @param [String] box_name
     # @param [String] version_number
-    def delete(username=nil, box_name=nil, version_number=nil)
+    def delete(username = nil, box_name = nil, version_number = nil)
       @client.request('delete', version_path(username, box_name, version_number))
     end
 
     # @param [String] username
     # @param [String] box_name
     # @param [String] version_number
-    def release(username=nil, box_name=nil, version_number=nil)
+    def release(username = nil, box_name = nil, version_number = nil)
       data = @client.request('put', "#{version_path(username, box_name, version_number)}/release")
 
       @data = data if !(username && box_name && version_number)
@@ -99,7 +99,7 @@ module VagrantCloud
     # @param [String] username
     # @param [String] box_name
     # @param [String] version_number
-    def revoke(username=nil, box_name=nil, version_number=nil)
+    def revoke(username = nil, box_name = nil, version_number = nil)
       update_data = !(username && box_name && version_number)
       data = @client.request('put', "#{version_path(username, box_name, version_number)}/revoke")
 
@@ -112,13 +112,13 @@ module VagrantCloud
     # @param [String] org
     # @param [String] box_name
     # @return [Hash]
-    def create_version(number=nil, description = nil, org=nil, box_name=nil)
+    def create_version(number = nil, description = nil, org = nil, box_name = nil)
       update_data = !(org && box_name && description && number)
       number ||= @number
       description ||= @description
 
       params = { version: number, description: description }
-      data = @client.request('post', "#{create_version_path(org, box_name)}", version: params)
+      data = @client.request('post', create_version_path(org, box_name).to_s, version: params)
 
       @data = data if update_data
       data
@@ -148,7 +148,7 @@ module VagrantCloud
     # @param [String] url
     # @return [Provider]
     def ensure_provider(name, url)
-      provider = providers.select { |provider| provider.name == name }.first
+      provider = providers.select { |p| p.name == name }.first
       provider = create_provider(name, url) unless provider
       provider.update(url) if url != provider.url
       provider
@@ -166,7 +166,7 @@ module VagrantCloud
     # @param [String] - username
     # @param [String] - box_name
     # @return [String]
-    def create_version_path(username=nil, box_name=nil)
+    def create_version_path(username = nil, box_name = nil)
       if username && box_name
         "/box/#{username}/#{box_name}/versions"
       else
@@ -178,7 +178,7 @@ module VagrantCloud
     # @param [String] - box_name
     # @param [String] - version_number
     # @return [String]
-    def version_path(username=nil, box_name=nil,version_number=nil)
+    def version_path(username = nil, box_name = nil, version_number = nil)
       if username && box_name && version_number
         "/box/#{username}/#{box_name}/version/#{version_number}"
       else

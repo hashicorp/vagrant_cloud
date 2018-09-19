@@ -3,10 +3,10 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Provider do
-    let (:token) { 'my-token' }
-    let (:account) { Account.new('my-acc', token) }
-    let (:box) { Box.new(account, 'my-box') }
-    let (:version) { VagrantCloud::Version.new(box, '1.2') }
+    let(:token) { 'my-token' }
+    let(:account) { Account.new('my-acc', token) }
+    let(:box) { Box.new(account, 'my-box') }
+    let(:version) { VagrantCloud::Version.new(box, '1.2') }
 
     describe '#initialize' do
       it 'stores data' do
@@ -75,7 +75,6 @@ module VagrantCloud
         provider = Provider.new(version, 'anything')
         provider.delete('hashicorp', 'precise64', '2.0.0', 'virtualbox')
       end
-
     end
 
     describe '.upload_url' do
@@ -122,7 +121,7 @@ module VagrantCloud
       end
 
       it 'sends a PUT request to upload a file for a one-off request' do
-        stub_request(:get, "https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0/provider/virtualbox/upload")
+        stub_request(:get, 'https://vagrantcloud.com/api/v1/box/hashicorp/precise64/version/2.0/provider/virtualbox/upload')
           .to_return(status: 200, body: JSON.dump(response))
         stub_request(:put, response['upload_path']).with(body: File.read(file_path)).to_return(status: 200, body: '')
         results = provider.upload_file(file_path, 'hashicorp', 'precise64', '2.0', 'virtualbox')
@@ -134,18 +133,16 @@ module VagrantCloud
       end
     end
 
-    describe ".provider_path" do
-      it "returns a path to create a version with the given objects attributes" do
-        data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
-        provider = VagrantCloud::Provider.new(version, "virtualbox", nil, token)
-        expect(provider.send(:provider_path)).to eq("/box/my-acc/my-box/version/1.2/provider/virtualbox")
+    describe '.provider_path' do
+      it 'returns a path to create a version with the given objects attributes' do
+        provider = VagrantCloud::Provider.new(version, 'virtualbox', nil, token)
+        expect(provider.send(:provider_path)).to eq('/box/my-acc/my-box/version/1.2/provider/virtualbox')
       end
 
-      it "returns a path to create a version for a one off version" do
-        data = { 'version' => '1.2', 'description_markdown' => 'desc-markdown', 'status' => 'unreleased' }
-        provider = VagrantCloud::Provider.new(version, "virtualbox", nil, token)
-        expect(provider.send(:provider_path, "hashicorp", "precise64", "2.2", "virtualbox"))
-          .to eq("/box/hashicorp/precise64/version/2.2/provider/virtualbox")
+      it 'returns a path to create a version for a one off version' do
+        provider = VagrantCloud::Provider.new(version, 'virtualbox', nil, token)
+        expect(provider.send(:provider_path, 'hashicorp', 'precise64', '2.2', 'virtualbox'))
+          .to eq('/box/hashicorp/precise64/version/2.2/provider/virtualbox')
       end
     end
   end
