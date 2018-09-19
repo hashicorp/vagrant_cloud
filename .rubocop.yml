@@ -1,5 +1,3 @@
-inherit_from: .rubocop_todo.yml
-
 Metrics/LineLength:
   Max: 160
 
@@ -8,10 +6,6 @@ Style/Documentation:
 
 Style/MultilineBlockChain:
   Enabled: false
-
-Style/MutableConstant:
-  Exclude:
-    - lib/copperegg/alerts/version.rb
 
 Performance/PushSplat:
   Enabled: false
