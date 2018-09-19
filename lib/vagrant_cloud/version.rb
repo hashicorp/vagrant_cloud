@@ -2,7 +2,6 @@ module VagrantCloud
   class Version
     attr_accessor :box
     attr_accessor :number
-    attr_accessor :data
 
     # @param [Box] box
     # @param [String] number
@@ -149,7 +148,7 @@ module VagrantCloud
     # @return [Provider]
     def ensure_provider(name, url)
       provider = providers.select { |p| p.name == name }.first
-      provider = create_provider(name, url) unless provider
+      provider ||= create_provider(name, url)
       provider.update(url) if url != provider.url
       provider
     end

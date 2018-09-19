@@ -107,7 +107,7 @@ module VagrantCloud
       begin
         box = get_box(name)
         box.data
-      rescue RestClient::ResourceNotFound => e
+      rescue RestClient::ResourceNotFound
         box = create_box(name, params)
         # If we've just created the box, we're done.
         return box
@@ -138,9 +138,7 @@ module VagrantCloud
     def request(method, path, params = {})
       headers = {}
 
-      if access_token
-        headers['Authorization'] = "Bearer #{access_token}"
-      end
+      headers['Authorization'] = "Bearer #{access_token}" if access_token
 
       result = RestClient::Request.execute(
         method: method,

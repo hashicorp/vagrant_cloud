@@ -14,7 +14,7 @@ install:
   - bundle install
 
 script:
-  - bundle exec rake spec
+  - bundle exec rake
 
 notifications:
   email: false

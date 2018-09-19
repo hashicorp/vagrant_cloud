@@ -1,3 +1,7 @@
+AllCops:
+  Exclude:
+    - 'Rakefile'
+
 Lint/PercentStringArray:
   Enabled: False
 
@@ -25,3 +29,23 @@ Style/Documentation:
 Style/NegatedIf:
   Enabled: false
 
+Style/BlockDelimiters:
+  Enabled: False
+
+Layout/MultilineBlockLayout:
+  Enabled: False
+
+Style/WordArray:
+  Enabled: False
+
+Style/DoubleNegation:
+  Enabled: False
+
+Metrics/AbcSize:
+  Enabled: False
+
+Style/InverseMethods:
+  Enabled: False
+
+Style/IfUnlessModifier:
+  Enabled: False
