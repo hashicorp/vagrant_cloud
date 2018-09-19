@@ -11,13 +11,13 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/hashicorp/vagrant_cloud'
   s.license     = 'MIT'
 
-  s.add_runtime_dependency 'rest-client', '~> 2.0.2'
   s.add_runtime_dependency 'json', '~> 2.1.0'
+  s.add_runtime_dependency 'rest-client', '~> 2.0.2'
 
   s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'rspec', '~> 3.0'
-  s.add_development_dependency 'webmock', '~> 3.0'
   s.add_development_dependency 'rubocop', '~> 0.59.1'
+  s.add_development_dependency 'webmock', '~> 3.0'
 
   s.post_install_message = "NOTICE: As of the 2.0.0 release, the vagrant_cloud gem provides library functionality
         and no longer includes a command line client. For a command line client,
