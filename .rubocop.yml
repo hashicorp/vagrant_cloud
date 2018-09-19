@@ -3,3 +3,21 @@ Metrics/LineLength:
 
 Style/Documentation:
   Enabled: false
+
+Style/NegatedIf:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
+
+Lint/PercentStringArray:
+  Enabled: False
+
+Metrics/ParameterLists:
+  Enabled: False
