@@ -3,7 +3,7 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Account do
-    let (:account) { Account.new('my-acc', 'my-token') }
+    let(:account) { Account.new('my-acc', 'my-token') }
 
     describe '#initialize' do
       it 'stores credentials' do
@@ -22,8 +22,8 @@ module VagrantCloud
 
       it 'creates a token' do
         stub_request(:post, 'https://vagrantcloud.com/api/v1/authenticate')
-          .with(body: {'token'=>{'description'=>'one off token'},
-                'user'=>{'login'=>'my-acc', 'password'=>'password'}})
+          .with(body: { 'token' => { 'description' => 'one off token' },
+                        'user' => { 'login' => 'my-acc', 'password' => 'password' } })
           .to_return(status: 200, body: JSON.dump(result))
 
         expect(account.create_token('password', 'one off token')).to eq(result)

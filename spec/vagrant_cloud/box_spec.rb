@@ -3,9 +3,9 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-    let (:token) { 'my-token' }
-    let (:account) { Account.new('my-acc', token) }
-    let (:client) { Account.new(token) }
+    let(:token) { 'my-token' }
+    let(:account) { Account.new('my-acc', token) }
+    let(:client) { Account.new(token) }
 
     describe '#initialize' do
       it 'stores data' do

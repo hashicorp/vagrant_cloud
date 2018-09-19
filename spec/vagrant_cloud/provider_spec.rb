@@ -3,10 +3,10 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Provider do
-    let (:token) { 'my-token' }
-    let (:account) { Account.new('my-acc', token) }
-    let (:box) { Box.new(account, 'my-box') }
-    let (:version) { VagrantCloud::Version.new(box, '1.2') }
+    let(:token) { 'my-token' }
+    let(:account) { Account.new('my-acc', token) }
+    let(:box) { Box.new(account, 'my-box') }
+    let(:version) { VagrantCloud::Version.new(box, '1.2') }
 
     describe '#initialize' do
       it 'stores data' do

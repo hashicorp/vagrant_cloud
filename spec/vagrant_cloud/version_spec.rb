@@ -3,8 +3,8 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Box do
-    let (:account) { Account.new('my-acc', 'my-token') }
-    let (:box) { Box.new(account, 'my-box') }
+    let(:account) { Account.new('my-acc', 'my-token') }
+    let(:box) { Box.new(account, 'my-box') }
 
     describe '#initialize' do
       it 'stores data' do

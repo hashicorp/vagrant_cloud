@@ -3,8 +3,8 @@ require 'vagrant_cloud'
 
 module VagrantCloud
   describe Client do
-    let (:token) { 'my-token' }
-    let (:client) { Client.new(token) }
+    let(:token) { 'my-token' }
+    let(:client) { Client.new(token) }
 
     describe '#request' do
       it 'includes an Authorization header' do

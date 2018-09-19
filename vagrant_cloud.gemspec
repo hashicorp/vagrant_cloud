@@ -17,11 +17,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rake', '~> 10.4'
   s.add_development_dependency 'rspec', '~> 3.0'
   s.add_development_dependency 'webmock', '~> 3.0'
-  s.add_development_dependency 'rubocop', '~> 0.49.0'
+  s.add_development_dependency 'rubocop', '~> 0.59.1'
 
-  s.post_install_message = %q(NOTICE: As of the 2.0.0 release, the vagrant_cloud gem provides library functionality
+  s.post_install_message = "NOTICE: As of the 2.0.0 release, the vagrant_cloud gem provides library functionality
         and no longer includes a command line client. For a command line client,
         use the `vagrant cloud` subcommand from Vagrant. Vagrant can be downloaded
-        from: https://www.vagrantup.com/downloads.html
-)
+        from: https://www.vagrantup.com/downloads.html"
 end
