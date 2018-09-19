@@ -13,7 +13,7 @@ module VagrantCloud
         else
           message = msg + ' - ' + vagrant_cloud_msg
         end
-      rescue JSON::ParserError => e
+      rescue JSON::ParserError
         message = msg
       end
 

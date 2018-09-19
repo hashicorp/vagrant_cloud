@@ -2,7 +2,6 @@ module VagrantCloud
   class Provider
     attr_accessor :version
     attr_accessor :name
-    attr_accessor :data
 
     # @param [Version] version
     # @param [String] name

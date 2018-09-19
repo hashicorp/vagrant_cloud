@@ -2,7 +2,6 @@ module VagrantCloud
   class Box
     attr_accessor :account
     attr_accessor :name
-    attr_accessor :data
 
     # @param [String] account
     # @param [String] name
@@ -144,7 +143,7 @@ module VagrantCloud
     # @return [Version]
     def ensure_version(name, description = nil)
       version = versions.select { |v| v.version == name }.first
-      version = create_version(name, description) unless version
+      version ||= create_version(name, description)
       if description && (description != version.description)
         version.update(description)
       end
