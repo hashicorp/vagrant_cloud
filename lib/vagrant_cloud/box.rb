@@ -143,7 +143,7 @@ module VagrantCloud
     # @param [String] description
     # @return [Version]
     def ensure_version(name, description = nil)
-      version = versions.select { |version| version.version == name }.first
+      version = versions.select { |v| v.version == name }.first
       version = create_version(name, description) unless version
       if description && (description != version.description)
         version.update(description)

@@ -148,7 +148,7 @@ module VagrantCloud
     # @param [String] url
     # @return [Provider]
     def ensure_provider(name, url)
-      provider = providers.select { |provider| provider.name == name }.first
+      provider = providers.select { |p| p.name == name }.first
       provider = create_provider(name, url) unless provider
       provider.update(url) if url != provider.url
       provider
