@@ -11,7 +11,6 @@ Gem::Specification.new do |s|
   s.homepage    = 'https://github.com/hashicorp/vagrant_cloud'
   s.license     = 'MIT'
 
-  s.add_runtime_dependency 'json', '~> 2.1.0'
   s.add_runtime_dependency 'rest-client', '~> 2.0.2'
 
   s.add_development_dependency 'rake', '~> 10.4'
