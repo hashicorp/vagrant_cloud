@@ -50,11 +50,24 @@ module VagrantCloud
       begin
         result = RestClient::Request.execute(request_params)
 
-        parsed_result = JSON.parse(result)
-        parsed_result
+        parse_json(result)
       rescue RestClient::ExceptionWithResponse => e
         raise ClientError.new(e.message, e.http_body, e.http_code)
       end
+    end
+
+    protected
+
+    # Parse string of JSON
+    #
+    # @param [String] string JSON encoded string
+    # @return [Object]
+    # @note This is included to provide expected behavior on
+    # Ruby 2.3. Once it has reached EOL this can be removed.
+    def parse_json(string)
+      JSON.parse(string)
+    rescue JSON::ParserError
+      raise if string != 'null'
     end
   end
 end
