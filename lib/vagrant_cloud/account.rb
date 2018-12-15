@@ -104,10 +104,10 @@ module VagrantCloud
     def ensure_box(name, *args)
       params = box_params(*args)
 
-      begin
+      begin # try to read the box data
         box = get_box(name)
         box.data
-      rescue RestClient::ResourceNotFound
+      rescue VagrantCloud::ClientError # it's probably not a box so create
         box = create_box(name, params)
         # If we've just created the box, we're done.
         return box

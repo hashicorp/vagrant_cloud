@@ -131,7 +131,7 @@ module VagrantCloud
     describe '.ensure_box' do
       it 'creates nonexisting boxes' do
         box_requested = Box.new(account, 'foo')
-        expect(box_requested).to receive(:data).and_raise(RestClient::ResourceNotFound)
+        expect(box_requested).to receive(:data).and_raise(VagrantCloud::ClientError)
 
         box_created = Box.new(account, 'foo', 'description_markdown' => 'desc',
                                               'short_description' => 'desc',
