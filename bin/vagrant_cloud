@@ -1,3 +1,6 @@
 #!/usr/bin/env ruby
 
-raise 'As of the 2.0.0 release, the vagrant_cloud gem provides library functionality and no longer includes a command line client. For a command line client, use the `vagrant cloud` subcommand from Vagrant. Vagrant can be downloaded from: https://www.vagrantup.com/downloads.html'
+raise 'As of the 2.0.0 release, the vagrant_cloud gem provides library' \
+      ' functionality and no longer includes a command line client. For a' \
+      ' command line client, use the `vagrant cloud` subcommand from Vagrant.' \
+      ' Vagrant can be downloaded from: https://www.vagrantup.com/downloads.html'
