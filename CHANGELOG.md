@@ -1,3 +1,7 @@
+# Next version (unreleased)
+
+* Properly raise error if CLI is invoked [GH-40](https://github.com/hashicorp/vagrant_cloud/pull/40)
+
 # v2.0.1
 
 * Remove JSON runtime dependency [GH-39](https://github.com/hashicorp/vagrant_cloud/pull/39)
