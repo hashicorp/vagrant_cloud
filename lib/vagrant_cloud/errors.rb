@@ -22,4 +22,11 @@ module VagrantCloud
       super(message)
     end
   end
+
+  class InvalidVersion < StandardError
+    def initialize(version_number)
+      message = 'Invalid version given: ' + version_number
+      super(message)
+    end
+  end
 end

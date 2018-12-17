@@ -67,6 +67,13 @@ module VagrantCloud
     # @param [String] version_number
     # @param [String] description
     def update(description = nil, username = nil, box_name = nil, version_number = nil)
+      # Ensure version given is a 'proper' version
+      begin
+        Gem::Version.new(version_number) if version_number
+      rescue ArgumentError
+        raise VagrantCloud::InvalidVersion, version_number
+      end
+
       update_data = !(username && box_name && version_number)
       description ||= @description
       version = { description: description }
@@ -115,6 +122,13 @@ module VagrantCloud
       update_data = !(org && box_name && description && number)
       number ||= @number
       description ||= @description
+
+      # Ensure version given is a 'proper' version
+      begin
+        Gem::Version.new(number) if number
+      rescue ArgumentError
+        raise VagrantCloud::InvalidVersion, number
+      end
 
       params = { version: number, description: description }
       data = @client.request('post', create_version_path(org, box_name).to_s, version: params)
