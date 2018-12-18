@@ -62,6 +62,11 @@ module VagrantCloud
         expect(box.data).to eq(result)
       end
 
+      it 'returns empty if no args provided' do
+        box = Box.new(account, 'foo')
+        expect(box.update({})).to eq(nil)
+      end
+
       it 'sends a PUT request for a one-off update' do
         result = {
           'foo' => 'foo'

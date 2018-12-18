@@ -33,10 +33,15 @@ module VagrantCloud
     # @param [Hash] args
     # @param [String] org - organization of the box to read
     # @param [String] box_name - name of the box to read
-    # @return [Hash]
+    # @return [Hash] @data
     def update(args = {})
       # hash arguments kept for backwards compatibility
-      data = @client.request('put', box_path(args[:organization], args[:name]), box: args)
+      return @data if args.empty?
+
+      org = args[:organization] || account.username
+      box_name = args[:name] || @name
+
+      data = @client.request('put', box_path(org, box_name), box: args)
 
       # Update was called on *this* object, so update
       # objects data locally
