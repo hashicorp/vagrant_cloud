@@ -50,6 +50,12 @@ module VagrantCloud
         expect(version.update('my-desc', 'hashicorp', 'precise64', '1.2.3'))
           .to eq(result)
       end
+
+      it 'raises an exception if the version number is invalid' do
+        version = VagrantCloud::Version.new(box, '1.2.3')
+        expect { version.update('my-desc', 'hashicorp', 'precise64', 'v1.2.4') }
+          .to raise_error(VagrantCloud::InvalidVersion, 'Invalid version given: v1.2.4')
+      end
     end
 
     describe '.delete' do

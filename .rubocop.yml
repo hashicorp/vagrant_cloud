@@ -5,6 +5,12 @@ AllCops:
 Lint/PercentStringArray:
   Enabled: False
 
+Metrics/ClassLength:
+  Enabled: False
+
+Metrics/CyclomaticComplexity:
+  Enabled: False
+
 Metrics/LineLength:
   Max: 160
 
