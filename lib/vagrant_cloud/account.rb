@@ -104,10 +104,15 @@ module VagrantCloud
     def ensure_box(name, *args)
       params = box_params(*args)
 
-      begin # try to read the box data
+      # try to read the box data
+      begin
         box = get_box(name)
         box.data
-      rescue VagrantCloud::ClientError # it's probably not a box so create
+      rescue VagrantCloud::ClientError => err
+        # Check if it's a 404 error. If so, then create
+        # the missing box
+        raise if err.error_code != 404
+
         box = create_box(name, params)
         # If we've just created the box, we're done.
         return box
