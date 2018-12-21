@@ -4,6 +4,16 @@ require 'vagrant_cloud'
 module VagrantCloud
   describe Account do
     let(:account) { Account.new('my-acc', 'my-token') }
+    let(:client_error) {
+      VagrantCloud::ClientError.new(
+        client_error_message,
+        client_error_http_body,
+        client_error_http_code
+      )
+    }
+    let(:client_error_message) { '' }
+    let(:client_error_http_body) { '' }
+    let(:client_error_http_code) { 400 }
 
     describe '#initialize' do
       it 'stores credentials' do
@@ -129,9 +139,11 @@ module VagrantCloud
     end
 
     describe '.ensure_box' do
+      let(:client_error_http_code) { 404 }
+
       it 'creates nonexisting boxes' do
         box_requested = Box.new(account, 'foo')
-        expect(box_requested).to receive(:data).and_raise(RestClient::ResourceNotFound)
+        expect(box_requested).to receive(:data).and_raise(client_error)
 
         box_created = Box.new(account, 'foo', 'description_markdown' => 'desc',
                                               'short_description' => 'desc',
