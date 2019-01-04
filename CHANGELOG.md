@@ -3,6 +3,7 @@
 * Properly raise error if CLI is invoked [GH-40](https://github.com/hashicorp/vagrant_cloud/pull/40)
 * Only update Box attribute if non-empty hash is given [GH-44](https://github.com/hashicorp/vagrant_cloud/pull/44)
 * Raise InvalidVersion error if version number for Version attribute is invalid [GH-45](https://github.com/hashicorp/vagrant_cloud/pull/45)
+* Fix `ensure_box` when box does not exist [GH-43](https://github.com/hashicorp/vagrant_cloud/pull/43)
 
 # v2.0.1
 
