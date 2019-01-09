@@ -1,4 +1,4 @@
-# Next version (unreleased)
+# v2.0.2 (January 9, 2019)
 
 * Properly raise error if CLI is invoked [GH-40](https://github.com/hashicorp/vagrant_cloud/pull/40)
 * Only update Box attribute if non-empty hash is given [GH-44](https://github.com/hashicorp/vagrant_cloud/pull/44)
