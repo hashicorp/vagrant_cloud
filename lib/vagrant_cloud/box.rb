@@ -3,7 +3,7 @@ module VagrantCloud
     attr_accessor :account
     attr_accessor :name
 
-    # @param [String] account
+    # @param [VagrantCloud::Account] account
     # @param [String] name
     # @param [Hash] data
     # @param [String] description
