@@ -37,7 +37,7 @@ module VagrantCloud
 
     # @return [Array<Provider>]
     def providers
-      data['providers'].map { |data| Provider.new(self, data['name'], data) }
+      data['providers'].map { |data| Provider.new(self, data['name'], data, nil, nil, nil, @client.access_token, @client.url_base) }
     end
 
     # @return [String]
@@ -145,7 +145,7 @@ module VagrantCloud
     # @param [Hash] data
     # @return [Provider]
     def get_provider(name, data = nil)
-      Provider.new(self, name, data)
+      Provider.new(self, name, data, nil, nil, nil, @client.access_token, @client.url_base)
     end
 
     # @param [String] name

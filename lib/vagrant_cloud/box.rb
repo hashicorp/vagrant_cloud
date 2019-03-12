@@ -118,7 +118,7 @@ module VagrantCloud
 
     # @return [Array<Version>]
     def versions
-      version_list = data['versions'].map { |data| VagrantCloud::Version.new(self, data['number'], data) }
+      version_list = data['versions'].map { |data| VagrantCloud::Version.new(self, data['number'], data, nil, @client.access_token, @client.url_base) }
       version_list.sort_by { |version| Gem::Version.new(version.number) }
     end
 
@@ -130,7 +130,7 @@ module VagrantCloud
     # @param [Hash] data
     # @return [Version]
     def get_version(number, data = nil)
-      VagrantCloud::Version.new(self, number, data)
+      VagrantCloud::Version.new(self, number, data, nil, @client.access_token, @client.url_base)
     end
 
     # @param [String] name
