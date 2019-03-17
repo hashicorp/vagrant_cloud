@@ -37,6 +37,25 @@ module VagrantCloud
         expect(box.versions[0].number).to eq('1.0')
         expect(box.versions[1].number).to eq('2.0')
       end
+
+      it 'returns versions with the client credentials of the Box' do
+        data = { 'versions' => [{ 'number' => '1.2' }] }
+        box = Box.new(account, 'foo', data, nil, nil, 'my-token', 'my-custom-site')
+        versions = box.versions
+        client = versions.first.instance_variable_get(:'@client')
+        expect(client.access_token).to eq('my-token')
+        expect(client.url_base).to eq('my-custom-site')
+      end
+    end
+
+    describe '.get_version' do
+      it 'returns a version with the client credentials of the Box' do
+        box = Box.new(account, 'foo', nil, nil, nil, 'my-token', 'my-custom-site')
+        version = box.get_version('1.2')
+        client = version.instance_variable_get(:'@client')
+        expect(client.access_token).to eq('my-token')
+        expect(client.url_base).to eq('my-custom-site')
+      end
     end
 
     describe '.update' do

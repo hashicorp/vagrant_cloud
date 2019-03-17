@@ -112,6 +112,31 @@ module VagrantCloud
       end
     end
 
+    describe '.providers' do
+      it 'returns providers with the client credentials of the Version' do
+        data = { 'providers' => [{ 'name' => 'my-prov' }] }
+        version = Version.new(box, '1.2', data, nil, 'my-token', 'my-custom-site')
+
+        providers = version.providers
+        client = providers.first.instance_variable_get(:'@client')
+
+        expect(client.access_token).to eq('my-token')
+        expect(client.url_base).to eq('my-custom-site')
+      end
+    end
+
+    describe '.get_provider' do
+      it 'returns a provider with the client credentials of the Version' do
+        version = Version.new(box, '1.2', nil, nil, 'my-token', 'my-custom-site')
+
+        provider = version.get_provider('my-prov')
+        client = provider.instance_variable_get(:'@client')
+
+        expect(client.access_token).to eq('my-token')
+        expect(client.url_base).to eq('my-custom-site')
+      end
+    end
+
     describe '.create_provider' do
       it 'sends a POST request and returns the right instance' do
         result = { 'foo' => 'foo' }
