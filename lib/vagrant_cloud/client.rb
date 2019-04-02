@@ -5,6 +5,7 @@ module VagrantCloud
     # Base Vagrant Cloud API URL
     URL_BASE = 'https://vagrantcloud.com/api/v1'.freeze
     attr_accessor :access_token
+    attr_accessor :url_base
 
     # @param [String] access_token - token used to authenticate API requests
     # @param [String] url_base - URL used to make API requests

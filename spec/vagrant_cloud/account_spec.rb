@@ -188,5 +188,16 @@ module VagrantCloud
         expect(box).to eq(box_requested)
       end
     end
+
+    describe '.get_box' do
+      it 'returns a box with the client credentials and custom site of the account' do
+        account = VagrantCloud::Account.new('my-acc', 'my-token', 'my-custom-site')
+        box = account.get_box('foo')
+        client = box.instance_variable_get(:'@client')
+
+        expect(client.access_token).to eq('my-token')
+        expect(client.url_base).to eq('my-custom-site')
+      end
+    end
   end
 end

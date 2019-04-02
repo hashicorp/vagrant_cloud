@@ -84,7 +84,7 @@ module VagrantCloud
     # @param [Hash] data
     # @return [Box]
     def get_box(name, data = nil)
-      Box.new(self, name, data)
+      Box.new(self, name, data, nil, nil, @client.access_token, @client.url_base)
     end
 
     # @param [String] name
