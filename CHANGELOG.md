@@ -1,5 +1,7 @@
 # Next version (Unreleased)
 
+* Pass access_token and base_url into legacy ensure methods [GH-50]
+
 # v2.0.2 (January 9, 2019)
 
 * Properly raise error if CLI is invoked [GH-40](https://github.com/hashicorp/vagrant_cloud/pull/40)
