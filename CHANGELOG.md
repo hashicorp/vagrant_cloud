@@ -1,6 +1,6 @@
 # Next version (Unreleased)
 
-* Pass access_token and base_url into legacy ensure methods [GH-50]
+* Pass access_token and base_url into legacy ensure methods [GH-50](https://github.com/hashicorp/vagrant_cloud/pull/50)
 
 # v2.0.2 (January 9, 2019)
 
