@@ -1,190 +1,136 @@
 module VagrantCloud
-  class Box
-    attr_accessor :account
-    attr_accessor :name
+  class Box < Data::Mutable
+    autoload :Provider, "vagrant_cloud/box/provider"
+    autoload :Version, "vagrant_cloud/box/version"
 
-    # @param [VagrantCloud::Account] account
-    # @param [String] name
-    # @param [Hash] data
-    # @param [String] description
-    # @param [String] short_description
-    # @param [String] access_token
-    def initialize(account, name = nil, data = nil, short_description = nil, description = nil, access_token = nil, custom_server = nil)
-      @account = account
-      @name = name
-      @data = data
-      @description = description
-      @short_description = short_description
-      @client = Client.new(access_token, custom_server)
-    end
+    attr_reader :organization
+    attr_required :name
+    attr_optional :created_at, :updated_at, :tag, :short_description,
+      :description_html, :description_markdown, :private, :downloads,
+      :current_version, :versions, :description, :username
 
-    #--------------------
-    # Box API Helpers
-    #--------------------
+    attr_mutable :short_description, :description, :private, :versions
 
-    # Read this box
-    # @return [Hash]
-    def data
-      @data ||= @client.request('get', box_path)
-    end
-
-    # Update a box
+    # Create a new instance
     #
-    # @param [Hash] args
-    # @param [String] org - organization of the box to read
-    # @param [String] box_name - name of the box to read
-    # @return [Hash] @data
-    def update(args = {})
-      # hash arguments kept for backwards compatibility
-      return @data if args.empty?
-
-      org = args[:organization] || account.username
-      box_name = args[:name] || @name
-
-      data = @client.request('put', box_path(org, box_name), box: args)
-
-      # Update was called on *this* object, so update
-      # objects data locally
-      @data = data if !args[:organization] && !args[:name]
-      data
+    # @return [Box]
+    def initialize(organization:, **opts)
+      @organization = organization
+      @versions_loaded = false
+      opts[:username] = organization.username
+      super(opts)
+      if opts[:versions] && !opts[:versions].empty?
+        self.versions= Array(opts[:versions]).map do |version|
+          Box::Version.load(box: self, **version)
+        end
+      end
+      if opts[:current_version]
+        clean(data: {current_version: Box::Version.
+          load(box: self, **opts[:current_version])})
+      end
+      clean!
     end
 
-    # A generic function to read any box on Vagrant Cloud
-    # If org and box name is not supplied, it will default to
-    # reading the given Box object
+    # Delete this box
     #
-    # @param [String] org - organization of the box to read
-    # @param [String] box_name - name of the box to read
-    # @return [Hash]
-    def delete(org = nil, box_name = nil)
-      @client.request('delete', box_path(org, box_name))
+    # @return [nil]
+    # @note This will delete the box, and all versions
+    def delete
+      if exist?
+        organization.account.client.box_delete(username: username, name: name)
+      end
+      nil
     end
 
-    # A generic function to read any box on Vagrant Cloud
+    # Add a new version of this box
     #
-    # @param [String] org - organization of the box to read
-    # @param [String] box_name - name of the box to read
-    # @return [Hash]
-    def read(org = nil, box_name = nil)
-      @client.request('get', box_path(org, box_name))
+    # @param [String] version Version number
+    # @return [Version]
+    def add_version(version)
+      if versions.any? { |v| v.version == version }
+        raise Error::BoxError::VersionExistsError,
+          "Version #{version} already exists for box #{tag}"
+      end
+      v = Version.new(box: self, version: version)
+      clean(data: {versions: versions + [v]})
+      v
     end
 
-    # @param [String] short_description
-    # @param [String] description
-    # @param [Bool] is_private
-    # @return [Hash]
-    def create(short_description = nil, description = nil, org = nil, box_name = nil, is_private = false)
-      update_data = !(org && box_name)
-
-      org ||= account.username
-      box_name ||= @name
-      short_description ||= @short_description
-      description ||= @description
-
-      params = {
-        name: box_name,
-        username: org,
-        is_private: is_private,
-        short_description: short_description,
-        description: description
-      }.delete_if { |_, v| v.nil? }
-
-      data = @client.request('post', '/boxes', box: params)
-
-      # Create was called on *this* object, so update
-      # objects data locally
-      @data = data if update_data
-      data
+    # Check if this instance is dirty
+    #
+    # @param [Boolean] deep Check nested instances
+    # @return [Boolean] instance is dirty
+    def dirty?(key=nil, deep: false)
+      if key
+        super(key)
+      else
+        d = super() || !exist?
+        if deep && !d
+          d = Array(plain_versions).any? { |v| v.dirty?(deep: true) }
+        end
+        d
+      end
     end
 
-    #--------------------
-    # Metadata Helpers
-    #--------------------
-
-    # @return [String]
-    def description
-      data['description_markdown'].to_s
-    end
-
-    # @return [String]
-    def description_short
-      data['short_description'].to_s
-    end
-
-    # @return [TrueClass, FalseClass]
-    def private
-      !!data['private']
+    # @return [Boolean] box exists remotely
+    def exist?
+      !!created_at
     end
 
     # @return [Array<Version>]
-    def versions
-      version_list = data['versions'].map { |data| VagrantCloud::Version.new(self, data['number'], data, nil, @client.access_token, @client.url_base) }
-      version_list.sort_by { |version| Gem::Version.new(version.number) }
-    end
-
-    #------------------------
-    # Old Version API Helpers
-    #------------------------
-
-    # @param [Integer] number
-    # @param [Hash] data
-    # @return [Version]
-    def get_version(number, data = nil)
-      VagrantCloud::Version.new(self, number, data, nil, @client.access_token, @client.url_base)
-    end
-
-    # @param [String] name
-    # @param [String] description
-    # @return [Version]
-    def create_version(name, description = nil)
-      params = { version: name }
-      params[:description] = description if description
-      data = @client.request('post', "#{box_path}/versions", version: params)
-      get_version(data['number'], data)
-    end
-
-    # @param [String] name
-    # @param [String] description
-    # @return [Version]
-    def ensure_version(name, description = nil)
-      version = versions.select { |v| v.version == name }.first
-      version ||= create_version(name, description)
-      if description && (description != version.description)
-        version.update(description)
+    # @note This is used to allow versions information to be loaded
+    # only when requested
+    def versions_on_demand
+      if !@versions_loaded
+        r = self.organization.account.client.box_get(username: username, name: name)
+        v = Array(r[:versions]).map do |version|
+          Box::Version.load(box: self, **version)
+        end
+        clean(data: {versions: v + Array(plain_versions)})
+        @versions_loaded = true
       end
-      version
+      plain_versions
     end
+    alias_method :plain_versions, :versions
+    alias_method :versions, :versions_on_demand
 
-    # @param [Symbol]
-    # @return [String]
-    def param_name(param)
-      # This needs to return strings, otherwise it won't match the JSON that
-      # Vagrant Cloud returns.
-      ATTR_MAP.fetch(param, param.to_s)
-    end
-
-    private
-
-    # Constructs the box path based on an account and box name.
-    # If no params are given, it constructs a path for *this* Box object,
-    # but if both params are given it will construct a path for a one-off request
+    # Save the box if any changes have been made
     #
-    # @param [String] - username
-    # @param [String] - box_name
-    # @return [String] - API path to box
-    def box_path(username = nil, box_name = nil)
-      if username && box_name
-        "/box/#{username}/#{box_name}"
-      else
-        "/box/#{account.username}/#{name}"
-      end
+    # @return [self]
+    def save
+      save_versions if dirty?(deep: true)
+      save_box if dirty?
+      self
     end
 
-    # Vagrant Cloud returns keys different from what you set for some params.
-    # Values in this map should be strings.
-    ATTR_MAP = {
-      is_private: 'private',
-      description: 'description_markdown'
-    }.freeze
+    protected
+
+    # Save the box
+    #
+    # @return [self]
+    def save_box
+      req_args = {
+        username: username,
+        name: name,
+        short_description: short_description,
+        description: description,
+        is_private: self.private
+      }
+      if exist?
+        result = organization.account.client.box_update(**req_args)
+      else
+        result = organization.account.client.box_create(**req_args)
+      end
+      clean(data: result, ignores: [:current_version, :versions])
+      self
+    end
+
+    # Save the versions if any require saving
+    #
+    # @return [self]
+    def save_versions
+      versions.map(&:save)
+      self
+    end
   end
 end
