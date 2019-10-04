@@ -42,6 +42,26 @@ module VagrantCloud
         expect(provider.data).to eq(result)
       end
 
+      it 'sends checksum information when provided' do
+        result = {
+          'foo' => 'foo'
+        }
+        stub_request(:put, 'https://vagrantcloud.com/api/v1/box/my-acc/my-box/version/1.2/provider/my-prov').with(
+          body: {
+            provider: {
+              checksum: 'CHECKSUM',
+              checksum_type: 'CHECKSUM_TYPE',
+              url: 'http://example.com'
+            }
+          }
+        ).to_return(status: 200, body: JSON.dump(result))
+
+        provider = Provider.new(version, 'my-prov', *[nil] * 6, 'CHECKSUM', 'CHECKSUM_TYPE')
+        provider.update('http://example.com')
+
+        expect(provider.data).to eq(result)
+      end
+
       it 'sends a PUT request for one-off providers' do
         result = {
           'foo' => 'foo'

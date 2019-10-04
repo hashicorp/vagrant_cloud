@@ -7,13 +7,15 @@ module VagrantCloud
     # @param [String] name
     # @param [Hash] data
     # @param [String] access_token
-    def initialize(version, name, data = nil, url = nil, username = nil, box_name = nil, access_token = nil, custom_server = nil)
+    def initialize(version, name, data = nil, url = nil, username = nil, box_name = nil, access_token = nil, custom_server = nil, checksum = nil, checksum_type = nil) # rubocop:disable LineLength
       @version = version
       @name = name
       @data = data
       @username = username
       @box_name = box_name
       @url = url
+      @checksum = checksum
+      @checksum_type = checksum_type
       @client = Client.new(access_token, custom_server)
     end
 
@@ -49,14 +51,16 @@ module VagrantCloud
     # @param [String] box_name
     # @param [String] version_number
     def create_provider(name = nil, url = nil, username = nil, box_name = nil, version_number = nil)
-      update_data = !(username && version_number && provider_name && box_name)
+      update_data = !(username && version_number && box_name)
       name ||= @name
       url ||= @url
       username ||= @username
       box_name ||= @box_name
       version_number ||= @version
+      checksum = @checksum
+      checksum_type = @checksum_type
 
-      params = { name: name, url: url }.delete_if { |_, v| v.nil? }
+      params = { name: name, url: url, checksum: checksum, checksum_type: checksum_type }.compact
       data = @client.request('post', create_provider_path(username, box_name, version_number), provider: params)
 
       @data = data if update_data
@@ -75,8 +79,10 @@ module VagrantCloud
       username ||= @username
       box_name ||= @box_name
       version_number ||= @version
+      checksum = @checksum
+      checksum_type = @checksum_type
 
-      params = { url: url }
+      params = { url: url, checksum: checksum, checksum_type: checksum_type }.compact
       data = @client.request('put',
                              provider_path(username, box_name, version_number, provider_name),
                              provider: params)
