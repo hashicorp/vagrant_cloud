@@ -1,0 +1,124 @@
+version: 2
+reference:
+  environment: &ENVIRONMENT
+    SLACK_TITLE: Vagrant Cloud CI
+    RELEASE_TARGET_REPONAME: vagrant_cloud
+  images:
+    ruby24: &ruby24
+      docker:
+        - image: circleci/ruby:2.4
+    ruby25: &ruby25
+      docker:
+        - image: circleci/ruby:2.5
+    ruby26: &ruby26
+      docker:
+        - image: circleci/ruby:2.6
+    builder: &builder
+      environment:
+        <<: *ENVIRONMENT
+      docker:
+        - image: $BUILDER_IMAGE
+          auth:
+            username: $BUILDER_USERNAME
+            password: $BUILDER_PASSWORD
+  workflows:
+    public: &PUBLIC_WORKFLOW
+      filters:
+        branches:
+          only:
+            - /^pull\/.*/
+            - master
+    private_build: &PRIVATE_WORKFLOW
+      context: vagrant
+      filters:
+        branches:
+          ignore: /.*/
+        tags:
+          only: /.*/
+  jobs:
+    private_failure: &PRIVATE_FAILURE
+      run:
+        name: Failure handler
+        command: |
+          if [ -f .output ]; then
+            slack -m "Vagrant Cloud RubyGem job has failed: *${CIRCLE_JOB}*" -s error -f .output -T 5
+          else
+            slack -m "Vagrant Cloud RubyGem job has failed: *${CIRCLE_JOB}*" -s error
+          fi
+        when: on_fail
+    unit_tests: &unit_tests
+      steps:
+        - checkout
+        - run: bundle install
+        - run: bundle exec rake
+jobs:
+  test_ruby24:
+    <<: *ruby24
+    <<: *unit_tests
+  test_ruby25:
+    <<: *ruby25
+    <<: *unit_tests
+  test_ruby26:
+    <<: *ruby26
+    <<: *unit_tests
+  build:
+    <<: *builder
+    steps:
+      - checkout
+      - run: gem build vagrant_cloud.gemspec
+      - *PRIVATE_FAILURE
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ./*.gem
+  release:
+    <<: *builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          set +e
+          gem=(vagrant_cloud-*.gem)
+          gem_version="${gem##vagrant_cloud-}"
+          gem_version="${gem_version%%.gem}"
+          export GITHUB_TOKEN="${HASHIBOT_TOKEN}"
+          version="${CIRCLE_TAG}"
+          ghr -u $CIRCLE_PROJECT_USERNAME} -r ${RELEASE_TARGET_REPONAME} -c ${CIRCLE_SHA1} -delete -replace ${version} ${gem} > .output 2>&1
+          slack -m "Created new GitHub release for vagrant_cloud - ${version}"
+      - *PRIVATE_FAILURE
+  publish:
+    <<: *builder
+    steps:
+      - attach_workspace:
+          at: .
+      - run: |
+          set +e
+          mkdir -p ~/.gem
+          echo "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+          gem=(vagrant_cloud-*.gem)
+          gem push ${gem}
+          slack -m "Published new version to RubyGems - ${gem}"
+      - *PRIVATE_FAILURE
+workflows:
+  version: 2
+  tests:
+    jobs:
+      - test_ruby24:
+          <<: *PUBLIC_WORKFLOW
+      - test_ruby25:
+          <<: *PUBLIC_WORKFLOW
+      - test_ruby26:
+          <<: *PUBLIC_WORKFLOW
+  release:
+    jobs:
+      - build:
+          <<: *PRIVATE_WORKFLOW
+      - release:
+          <<: *PRIVATE_WORKFLOW
+          requires:
+            - build
+      - publish:
+          <<: *PRIVATE_WORKFLOW
+          requires:
+            - build
