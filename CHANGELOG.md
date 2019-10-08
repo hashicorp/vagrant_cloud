@@ -1,4 +1,4 @@
-# Next version (Unreleased)
+# v2.0.3 (October 8, 2019)
 
 * Pass access_token and base_url into legacy ensure methods [GH-50](https://github.com/hashicorp/vagrant_cloud/pull/50)
 * Support passing checksum and checksum type values [GH-51](https://github.com/hashicorp/vagrant_cloud/pull/51)
