@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'vagrant_cloud'
-  s.version     = '2.0.3'
+  s.version     = '2.0.4.dev'
   s.summary     = 'Vagrant Cloud API Library'
   s.description = 'Ruby library for the HashiCorp Vagrant Cloud API'
   s.authors     = ['HashiCorp', 'Cargo Media']
