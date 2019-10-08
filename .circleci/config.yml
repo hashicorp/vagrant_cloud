@@ -65,7 +65,13 @@ jobs:
     <<: *builder
     steps:
       - checkout
-      - run: gem build vagrant_cloud.gemspec
+      - run: |
+          set -e
+          if [ "${VAGRANT_PRIVATE}" = "" ]; then
+            echo "This job is a stub in public"
+            exit 0
+          fi
+          gem build vagrant_cloud.gemspec
       - *PRIVATE_FAILURE
       - persist_to_workspace:
           root: .
@@ -77,7 +83,11 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          set +e
+          set -e
+          if [ "${VAGRANT_PRIVATE}" = "" ]; then
+            echo "This job is a stub in public"
+            exit 0
+          fi
           gem=(vagrant_cloud-*.gem)
           gem_version="${gem##vagrant_cloud-}"
           gem_version="${gem_version%%.gem}"
@@ -92,9 +102,13 @@ jobs:
       - attach_workspace:
           at: .
       - run: |
-          set +e
+          set -e
+          if [ "${VAGRANT_PRIVATE}" = "" ]; then
+            echo "This job is a stub in public"
+            exit 0
+          fi
           mkdir -p ~/.gem
-          echo "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
+          echo -e "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}" > ~/.gem/credentials
           chmod 0600 ~/.gem/credentials
           gem=(vagrant_cloud-*.gem)
           gem push ${gem}
