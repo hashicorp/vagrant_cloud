@@ -140,6 +140,7 @@ function asset_location() {
     echo -n "${dst}"
 }
 
+# Build and release project gem to RubyGems
 function release_to_rubygems() {
     mkdir -p $HOME/.gem
     touch $HOME/.gem/credentials
