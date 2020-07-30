@@ -122,12 +122,18 @@ org = account.organization(name: "hashicorp")
 
 # Create a new box
 box = org.add_box("test-bionic64")
+box.description = "Testing box for an example"
+box.short_description = "Test Box"
 
 # Create a new version
 version = box.add_version("1.0.0")
+version.description = "Version 1.0.0 release"
 
 # Create a new provider
 provider = version.add_provider("virtualbox")
+
+# Save the box, version, and provider
+box.save
 
 # Upload box asset
 provider.upload(path: BOX_PATH)
