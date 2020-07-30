@@ -1,4 +1,6 @@
-# v2.0.4 (Unreleased)
+# v2.1.0 (Unreleased)
+
+* Refactor library implementation [GH-59](https://github.com/hashicorp/vagrant_cloud/pull/59)
 
 # v2.0.3 (October 8, 2019)
 
