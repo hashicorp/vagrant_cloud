@@ -1,43 +1,143 @@
-vagrant_cloud
-=============
+# vagrant_cloud
+
 Ruby client for the [Vagrant Cloud API](https://www.vagrantup.com/docs/vagrant-cloud/api.html).
 
-[![Build Status](https://img.shields.io/travis/hashicorp/vagrant_cloud/master.svg)](https://travis-ci.org/hashicorp/vagrant_cloud)
 [![Gem Version](https://img.shields.io/gem/v/vagrant_cloud.svg)](https://rubygems.org/gems/vagrant_cloud)
 
+This library provides the functionality to create, modify, and delete boxes, versions,
+and providers on Vagrant Cloud.
 
-This client allows to create, modify and delete *boxes*, *versions* and *providers*.
-The main entry point is an object referencing your *account*.
+## Usage
 
-Usage
------
-Example usage:
+The Vagrant Cloud library provides two methods for interacting with the Vagrant Cloud API. The
+first is direct interaction using a `VagrantCloud::Client` instance. The second is a basic
+model based approach using a `VagrantCloud::Account` instance.
+
+### Direct Client
+
+The `VagrantCloud::Client` class contains all the underlying functionality which with
+`vagrant_cloud` library uses for communicating with Vagrant Cloud. It can be used directly
+for quickly and easily sending requests to Vagrant Cloud. The `VagrantCloud::Client`
+class will automatically handle any configured authentication, request parameter
+structuring, and response validation. All API related methods in the `VagrantCloud::Client`
+class will return `Hash` results.
+
+Example usage (display box details):
+
 ```ruby
-account = VagrantCloud::Account.new('<username>', '<access_token>')
-box = account.ensure_box('my_box')
-version = box.ensure_version('0.0.1')
-provider = version.ensure_provider('virtualbox', 'http://example.com/foo.box')
+require "vagrant_cloud"
 
+client = VagrantCloud::Client.new(access_token: "MY_TOKEN")
+box = client.box_get(username: "hashicorp", name: "bionic64")
+
+puts "Box: #{box[:tag]} Description: #{box[:description]}"
+```
+
+Example usage (creating box and releasing a new version):
+
+```ruby
+require "vagrant_cloud"
+require "net/http"
+
+# Create a new client
+client = VagrantCloud::Client.new(access_token: "MY_TOKEN")
+
+# Create a new box
+client.box_create(
+  username: "hashicorp",
+  name: "test-bionic64",
+  short_description: "Test Box",
+  long_description: "Testing box for an example",
+  is_private: false
+)
+
+# Create a new version
+client.box_version_create(
+  username: "hashicorp",
+  name: "test-bionic64",
+  version: "1.0.0",
+  description: "Version 1.0.0 release"
+)
+
+# Create a new provider
+client.box_version_provider_create(
+  username: "hashicorp",
+  name: "test-bionic64",
+  version: "1.0.0",
+  provider: "virtualbox"
+)
+
+# Request box upload URL
+upload_url = client.box_version_provider_upload(
+  username: "hashicorp",
+  name: "test-bionic64",
+  version: "1.0.0",
+  provider: "virtualbox"
+)
+
+# Upload box asset
+uri = URI.parse(upload_url[:upload_path])
+request = Net::HTTP::Post.new(uri)
+box = File.open(BOX_PATH, "rb")
+request.set_form([["file", box]], "multipart/form-data")
+response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: uri.scheme.eql?("https")) do |http|
+  http.request(request)
+end
+
+# Release the version
+client.box_version_release(
+  username: "hashicorp",
+  name: "test-bionic64",
+  version: "1.0.0"
+)
+```
+
+### Simple Models
+
+The `VagrantCloud::Account` class is the entry point for using simple models to
+interact with Vagrant Cloud.
+
+Example usage (display box details):
+
+```ruby
+require "vagrant_cloud"
+
+account = VagrantCloud::Account.new(access_token: "MY_TOKEN")
+org = account.organization(name: "hashicorp")
+box = org.boxes.select { |b| b.name == "bionic64" }
+
+puts "Box: #{box[:tag]} Description: #{box[:description]}"
+```
+
+Example usage (creating box and releasing a new version):
+
+```ruby
+require "vagrant_cloud"
+
+# Load our account
+account = VagrantCloud::Account.new(access_token: "MY_TOKEN")
+
+# Load organization
+org = account.organization(name: "hashicorp")
+
+# Create a new box
+box = org.add_box("test-bionic64")
+
+# Create a new version
+version = box.add_version("1.0.0")
+
+# Create a new provider
+provider = version.add_provider("virtualbox")
+
+# Upload box asset
+provider.upload(path: BOX_PATH)
+
+# Release the version
 version.release
-puts provider.download_url
 ```
 
-__NOTE:__ As of version 2.0.0, the CLI has been deprecated in favor of the `vagrant cloud`
-command. More information about how to use the `vagrant cloud` command can be found
-on the [Vagrant documentation](https://www.vagrantup.com/docs/cli/cloud.html).
+## Development & Contributing
 
-Example CLI usage:
-Create a version and provider within an existing Box, upload a file to be hosted by Vagrant Cloud, and release the version
-```sh
-vagrant_cloud create_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
-vagrant_cloud create_provider --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
-vagrant_cloud upload_file --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION --provider_file_path $PACKAGE_PATH
-vagrant_cloud release_version --username $USERNAME --token $VAGRANT_CLOUD_TOKEN --box $BOX_NAME --version $BOX_VERSION
-```
-If you installed vagrant_cloud with bundler, then you may have to invoke using `bundle exec vagrant_cloud`
-
-Development & Contributing
---------------------------
 Pull requests are very welcome!
 
 Install dependencies:
@@ -50,18 +150,18 @@ Run the tests:
 bundle exec rspec
 ```
 
-Check the code syntax:
-```
-bundle exec rubocop
-```
+## Releasing
 
 Release a new version:
 
-1. Bump the version in `vagrant_cloud.gemspec`, merge to master.
-2. Push a new tag to master.
-3. Release to RubyGems with `bundle exec rake release`.
+1. Update the version in the `version.txt` file
+1. Commit the change to master
+1. Create a new version tag in git: `git tag vX.X.X`
+1. Push the new tag and master to GitHub `git push origin master --tags`
 
-History
--------
-This gem has been developed and maintained by [Cargo Media](https://www.cargomedia.ch) since April 2014.
-HashiCorp became the official maintainer in October 2017.
+The new release will be automatically built and published.
+
+## History
+
+- This gem was developed and maintained by [Cargo Media](https://www.cargomedia.ch) from April 2014 until October 2017.
+- The `vagrant_cloud` CLI tool included in this RubyGem has been deprecated and removed. See `vagrant cloud` for a replacement.
