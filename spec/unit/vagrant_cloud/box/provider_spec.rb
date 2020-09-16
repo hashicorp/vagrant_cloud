@@ -92,11 +92,15 @@ describe VagrantCloud::Box::Provider do
 
   describe "#upload" do
     let(:response) { {upload_path: upload_path} }
+    let(:response_direct) { {upload_path: upload_path, callback: callback} }
     let(:upload_path) { double("upload_path") }
+    let(:callback) { double("callback") }
 
     before do
       allow(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload).
         and_return(response)
+      allow(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload_direct).
+        and_return(response_direct)
       allow(version).to receive_message_chain(:box, :tag).and_return("org/box")
       allow(version).to receive(:version).and_return("1.0")
     end
@@ -106,6 +110,13 @@ describe VagrantCloud::Box::Provider do
 
       it "should error" do
         expect { subject.upload }.to raise_error(VagrantCloud::Error::BoxError::ProviderNotFoundError)
+      end
+
+      context "when direct upload is enabled" do
+        it "should error" do
+          expect { subject.upload(direct: true) }.
+            to raise_error(VagrantCloud::Error::BoxError::ProviderNotFoundError)
+        end
       end
     end
 
@@ -169,6 +180,91 @@ describe VagrantCloud::Box::Provider do
 
         it "should return result of block" do
           expect(subject.upload { |u| :test }).to eq(:test)
+        end
+      end
+    end
+
+    context "with direct option set" do
+      before do
+        allow(subject).to receive(:exist?).and_return(true)
+        allow(Excon).to receive(:put)
+        allow(Excon).to receive(:post)
+      end
+
+      it "should error if path and block are both provided" do
+        expect { subject.upload(path: "/", direct: true) {} }.to raise_error(ArgumentError)
+      end
+
+      it "should return a DirectUpload" do
+        expect(subject.upload(direct: true)).to be_a(VagrantCloud::Box::Provider::DirectUpload)
+      end
+
+      it "should include an upload_url and callback_url in result" do
+        result = subject.upload(direct: true)
+        expect(result.upload_url).to eq(upload_path)
+        expect(result.callback_url).to eq(callback)
+      end
+
+      context "with path provided" do
+        let(:path) { "PATH" }
+
+        before { allow(File).to receive(:open).with(path, any_args) }
+
+        context "when path does not exist" do
+          before { allow(File).to receive(:exist?).with(path).and_return(false) }
+
+          it "should error" do
+            expect { subject.upload(path: path, direct: true) }.to raise_error(Errno::ENOENT)
+          end
+        end
+
+        context "when path does exist" do
+          before { allow(File).to receive(:exist?).with(path).and_return(true) }
+
+          it "should make request for direct upload" do
+            expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload_direct).
+              and_return(response_direct)
+            subject.upload(path: path, direct: true)
+          end
+
+          it "should upload the path" do
+            expect(File).to receive(:open).with(path, any_args).and_yield(double("file"))
+            expect(Excon).to receive(:post).with(upload_path, any_args)
+            subject.upload(path: path, direct: true)
+          end
+
+          it "should request the callback" do
+            expect(Excon).to receive(:put).with(callback)
+            subject.upload(path: path, direct: true)
+          end
+
+          it "should return self" do
+            expect(subject.upload(path: path, direct: true)).to eq(subject)
+          end
+        end
+      end
+
+      context "with block provided" do
+        it "should make request for upload" do
+          expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload_direct).
+            and_return(response_direct)
+          subject.upload(direct: true) { |du| }
+        end
+
+        it "should yield DirectUpload which includes upload path" do
+          subject.upload(direct: true) do |du|
+            expect(du.upload_url).to eq(upload_path)
+          end
+        end
+
+        it "should yield DirectUpload which includes callback" do
+          subject.upload(direct: true) do |du|
+            expect(du.callback_url).to eq(callback)
+          end
+        end
+
+        it "should return result of block" do
+          expect(subject.upload(direct: true) { |du| :test }).to eq(:test)
         end
       end
     end
