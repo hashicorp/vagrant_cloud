@@ -54,9 +54,9 @@ module VagrantCloud
       # option is enabled.
       #
       # If a block is provided, the upload URL will be yielded
-      # to the block. If the `direct` option is also set, the
-      # `DirectUpload` instance will be yielded and it is the
-      # block's responsibility to issue the callback request.
+      # to the block. If the `direct` option is set, the callback
+      # will be automatically requested after the block execution
+      # has completed.
       #
       # If no path or block is provided, the upload URL will
       # be returned. If the `direct` option is set, the
@@ -96,9 +96,9 @@ module VagrantCloud
           callback_url: r[:callback]
         )
         if block_given?
-          # When block is given and `direct` option is false, only yield
-          # the upload URL, otherwise yield the `DirectUpload` instance
-          yield direct ? result : result.upload_url
+          block_r = yield result.upload_url
+          Excon.put(result.callback_url) if direct
+          block_r
         elsif path
           File.open(path, "rb") do |file|
             chunks = lambda { file.read(Excon.defaults[:chunk_size]).to_s }

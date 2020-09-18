@@ -251,16 +251,15 @@ describe VagrantCloud::Box::Provider do
           subject.upload(direct: true) { |du| }
         end
 
-        it "should yield DirectUpload which includes upload path" do
+        it "should yield the upload path" do
           subject.upload(direct: true) do |du|
-            expect(du.upload_url).to eq(upload_path)
+            expect(du).to eq(upload_path)
           end
         end
 
-        it "should yield DirectUpload which includes callback" do
-          subject.upload(direct: true) do |du|
-            expect(du.callback_url).to eq(callback)
-          end
+        it "should request the callback" do
+          expect(Excon).to receive(:put).with(callback)
+          subject.upload(direct: true) {|_|}
         end
 
         it "should return result of block" do
