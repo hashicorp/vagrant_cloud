@@ -419,6 +419,17 @@ module VagrantCloud
       request(method: :get, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}/upload")
     end
 
+    # Upload a box asset directly to the backend storage for an existing box version provider
+    #
+    # @param [String] username Username/organization name to create box under
+    # @param [String] name Box name
+    # @param [String] version Box version
+    # @param [String] provider Provider name
+    # @return [Hash] box version provider upload information (contains upload_path and callback entries)
+    def box_version_provider_upload_direct(username:, name:, version:, provider:)
+      request(method: :get, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}/upload/direct")
+    end
+
     protected
 
     # Parse a string of JSON

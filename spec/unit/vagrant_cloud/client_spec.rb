@@ -938,4 +938,50 @@ describe VagrantCloud::Client do
       subject.box_version_provider_upload(username: username, name: name, version: version, provider: provider)
     end
   end
+
+  describe "#box_version_provider_upload_direct" do
+    let(:username) { double("username") }
+    let(:name) { double("name") }
+    let(:version) { double("version") }
+    let(:provider) { double("provider") }
+
+    before { allow(subject).to receive(:request) }
+
+    it "should require username is provided" do
+      expect { subject.box_version_provider_upload_direct(name: name, version: version, provider: provider) }.
+        to raise_error(ArgumentError)
+    end
+
+    it "should require name is provided" do
+      expect { subject.box_version_provider_upload_direct(username: username, version: version, provider: provider) }.
+        to raise_error(ArgumentError)
+    end
+
+    it "should require version is provided" do
+      expect { subject.box_version_provider_upload_direct(username: username, name: name, provider: provider) }.
+        to raise_error(ArgumentError)
+    end
+
+    it "should require provider is provided" do
+      expect { subject.box_version_provider_upload_direct(username: username, name: name, version: version) }.
+        to raise_error(ArgumentError)
+    end
+
+    it "should send upload request for the box version provider" do
+      expect(subject).to receive(:request)
+      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+    end
+
+    it "should request the box version provider upload with GET method" do
+      expect(subject).to receive(:request).with(hash_including(method: :get))
+      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+    end
+
+    it "should request the upload path" do
+      expect(subject).to receive(:request) do |args|
+        expect(args[:path]).to include("upload")
+      end
+      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+    end
+  end
 end

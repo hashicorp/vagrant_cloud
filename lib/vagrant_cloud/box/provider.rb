@@ -1,6 +1,14 @@
 module VagrantCloud
   class Box
     class Provider < Data::Mutable
+
+      # Result for upload requests to upload directly to the
+      # storage backend.
+      #
+      # @param [String] upload_url URL for uploading file asset
+      # @param [String] callback_url URL callback to PUT after successful upload
+      DirectUpload = Struct.new(:upload_url, :callback_url, keyword_init: true)
+
       attr_reader :version
       attr_required :name
       attr_optional :hosted, :created_at, :updated_at,
@@ -33,16 +41,34 @@ module VagrantCloud
         nil
       end
 
-      # Upload box file to be hosted on VagrantCloud. If
-      # path is provided, file will be uploaded. If block
-      # is given, the URL to upload the asset will be provided.
-      # If a path is not provided, and a block is not provided,
-      # the URL to upload the asset will be returned.
+      # Upload box file to be hosted on VagrantCloud. This
+      # method provides different behaviors based on the
+      # parameters passed. When the `direct` option is enabled
+      # the upload target will be directly to the backend
+      # storage. However, when the `direct` option is used the
+      # upload process becomes a two steps where a callback
+      # must be called after the upload is complete.
+      #
+      # If the path is provided, the file will be uploaded
+      # and the callback will be requested if the `direct`
+      # option is enabled.
+      #
+      # If a block is provided, the upload URL will be yielded
+      # to the block. If the `direct` option is also set, the
+      # `DirectUpload` instance will be yielded and it is the
+      # block's responsibility to issue the callback request.
+      #
+      # If no path or block is provided, the upload URL will
+      # be returned. If the `direct` option is set, the
+      # `DirectUpload` instance will be yielded and it is
+      # the caller's responsibility to issue the callback
       #
       # @param [String] path Path to asset
+      # @param [Boolean] direct Upload directly to backend storage
       # @yieldparam [String] url URL to upload asset
-      # @return [self, Object, String] self when path provided, result of yield when block provided, URL otherwise
-      def upload(path: nil)
+      # @return [self, Object, String, DirectUpload] self when path provided, result of yield when block provided, URL otherwise
+      # @note The callback request uses PUT request method
+      def upload(path: nil, direct: false)
         if !exist?
           raise Error::BoxError::ProviderNotFoundError,
             "Provider #{name} not found for box #{version.box.tag} version #{version.version}"
@@ -54,23 +80,44 @@ module VagrantCloud
         if path && !File.exist?(path)
           raise Errno::ENOENT, path
         end
-        result = version.box.organization.account.client.box_version_provider_upload(
+        req_args = {
           username: version.box.username,
           name: version.box.name,
           version: version.version,
           provider: name
+        }
+        if direct
+          r = version.box.organization.account.client.box_version_provider_upload_direct(**req_args)
+        else
+          r = version.box.organization.account.client.box_version_provider_upload(**req_args)
+        end
+        result = DirectUpload.new(
+          upload_url: r[:upload_path],
+          callback_url: r[:callback]
         )
-        url = result[:upload_path]
         if block_given?
-          yield url
+          # When block is given and `direct` option is false, only yield
+          # the upload URL, otherwise yield the `DirectUpload` instance
+          yield direct ? result : result.upload_url
         elsif path
           File.open(path, "rb") do |file|
             chunks = lambda { file.read(Excon.defaults[:chunk_size]).to_s }
-            Excon.put(url, request_block: chunks)
+            # When performing a direct upload, we must POST the request
+            # to the provided upload URL. If it's just a regular upload
+            # then we just PUT to the upload URL.
+            if direct
+              Excon.post(result.upload_url, request_block: chunks)
+            else
+              Excon.put(result.upload_url, request_block: chunks)
+            end
           end
+          Excon.put(result.callback_url) if direct
           self
         else
-          url
+          # When returning upload information for requester to complete,
+          # return upload URL when `direct` option is false, otherwise
+          # return the `DirectUpload` instance
+          direct ? result : result.upload_url
         end
       end
 
