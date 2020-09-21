@@ -15,6 +15,12 @@ jobs:
       uses: actions/setup-ruby@v1
       with:
         version: 2.6.x
-
     - name: Publish to RubyGems
       run: ./.ci/build.sh
+      env:
+        RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
+        VAGRANT_CI_LOADER_BUCKET: ${{ secrets.CI_LOADER_BUCKET }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+      working-directory: ${{ github.workspace }}
