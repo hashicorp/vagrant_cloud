@@ -1,6 +1,9 @@
-# v2.1.0 (Unreleased)
+# v3.0.0 (September 21, 2020)
 
 * Refactor library implementation [GH-59](https://github.com/hashicorp/vagrant_cloud/pull/59)
+* Add support for direct storage uploads [GH-62](https://github.com/hashicorp/vagrant_cloud/pull/62)
+
+_NOTE_: This release includes breaking changes and is not backwards compatible
 
 # v2.0.3 (October 8, 2019)
 
