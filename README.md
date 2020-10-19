@@ -161,9 +161,9 @@ bundle exec rspec
 Release a new version:
 
 1. Update the version in the `version.txt` file
-1. Commit the change to master
+1. Commit the change to main
 1. Create a new version tag in git: `git tag vX.X.X`
-1. Push the new tag and master to GitHub `git push origin master --tags`
+1. Push the new tag and main to GitHub `git push origin main --tags`
 
 The new release will be automatically built and published.
 
