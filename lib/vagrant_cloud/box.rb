@@ -37,7 +37,13 @@ module VagrantCloud
     # @note This will delete the box, and all versions
     def delete
       if exist?
-        organization.account.client.box_delete(username: username, name: name)
+        organization.account.client.box_delete(
+          username: username,
+          name: name
+        )
+        b = organization.boxes.dup
+        b.delete(self)
+        organization.clean(data: {boxes: b})
       end
       nil
     end
@@ -82,11 +88,15 @@ module VagrantCloud
     # only when requested
     def versions_on_demand
       if !@versions_loaded
-        r = self.organization.account.client.box_get(username: username, name: name)
-        v = Array(r[:versions]).map do |version|
-          Box::Version.load(box: self, **version)
+        if exist?
+          r = self.organization.account.client.box_get(username: username, name: name)
+          v = Array(r[:versions]).map do |version|
+            Box::Version.load(box: self, **version)
+          end
+          clean(data: {versions: v + Array(plain_versions)})
+        else
+          clean(data: {versions: []})
         end
-        clean(data: {versions: v + Array(plain_versions)})
         @versions_loaded = true
       end
       plain_versions

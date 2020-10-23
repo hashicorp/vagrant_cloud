@@ -257,8 +257,8 @@ describe VagrantCloud::Client do
 
     it "should include description and code if provided" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :description)).to eq(description)
-        expect(args.dig(:params, :two_factor)).to eq(code)
+        expect(args.dig(:params, :token, :description)).to eq(description)
+        expect(args.dig(:params, :two_factor, :code)).to eq(code)
       end
       subject.authentication_token_create(username: username, password: password,
         description: description, code: code)

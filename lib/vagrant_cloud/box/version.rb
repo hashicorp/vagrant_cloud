@@ -36,7 +36,9 @@ module VagrantCloud
             version: version
           )
           # Remove self from box
-          box.versions.delete(self)
+          v = box.versions.dup
+          v.delete(self)
+          box.clean(data: {versions: v})
         end
         nil
       end

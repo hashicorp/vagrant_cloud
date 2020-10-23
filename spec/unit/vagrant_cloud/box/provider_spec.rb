@@ -45,7 +45,8 @@ describe VagrantCloud::Box::Provider do
     context "when provider does exist" do
       before do
         allow(subject).to receive(:exist?).and_return(true)
-        allow(version).to receive_message_chain(:providers, :delete)
+        allow(version).to receive_message_chain(:providers, :dup).and_return([])
+        allow(version).to receive(:clean).with(data: {providers: []})
       end
 
       it "should request deletion" do
@@ -84,7 +85,6 @@ describe VagrantCloud::Box::Provider do
 
       it "should remove itself from the versions provider collection" do
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_delete)
-        expect(version).to receive_message_chain(:providers, :delete).with(subject)
         subject.delete
       end
     end
@@ -92,9 +92,11 @@ describe VagrantCloud::Box::Provider do
 
   describe "#upload" do
     let(:response) { {upload_path: upload_path} }
-    let(:response_direct) { {upload_path: upload_path, callback: callback} }
+    let(:response_direct) { {upload_path: upload_path, callback: callback_url} }
     let(:upload_path) { double("upload_path") }
-    let(:callback) { double("callback") }
+    let(:callback_url) { double("callback-url", to_str: callback) }
+    let(:callback) { "callback_destination" }
+    let(:callback_proc) { double("callback-proc", call: nil) }
 
     before do
       allow(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload).
@@ -202,13 +204,18 @@ describe VagrantCloud::Box::Provider do
       it "should include an upload_url and callback_url in result" do
         result = subject.upload(direct: true)
         expect(result.upload_url).to eq(upload_path)
-        expect(result.callback_url).to eq(callback)
+        expect(result.callback_url).to eq(callback_url)
+        expect(result.callback).to be_a(Proc)
       end
 
       context "with path provided" do
         let(:path) { "PATH" }
 
-        before { allow(File).to receive(:open).with(path, any_args) }
+        before do
+          allow(File).to receive(:open).with(path, any_args)
+          allow(version).to receive_message_chain(:box, :organization, :account, :client, :request).
+            with(method: :put, path: callback)
+        end
 
         context "when path does not exist" do
           before { allow(File).to receive(:exist?).with(path).and_return(false) }
@@ -229,12 +236,14 @@ describe VagrantCloud::Box::Provider do
 
           it "should upload the path" do
             expect(File).to receive(:open).with(path, any_args).and_yield(double("file"))
-            expect(Excon).to receive(:post).with(upload_path, any_args)
+            expect(version).to receive_message_chain(:box, :organization, :account, :client, :request).
+              with(method: :put, path: callback)
             subject.upload(path: path, direct: true)
           end
 
           it "should request the callback" do
-            expect(Excon).to receive(:put).with(callback)
+            expect(version).to receive_message_chain(:box, :organization, :account, :client, :request).
+              with(method: :put, path: callback)
             subject.upload(path: path, direct: true)
           end
 
@@ -245,6 +254,11 @@ describe VagrantCloud::Box::Provider do
       end
 
       context "with block provided" do
+        before do
+          allow(version).to receive_message_chain(:box, :organization, :account, :client, :request).
+            with(method: :put, path: callback)
+        end
+
         it "should make request for upload" do
           expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_upload_direct).
             and_return(response_direct)
@@ -258,7 +272,8 @@ describe VagrantCloud::Box::Provider do
         end
 
         it "should request the callback" do
-          expect(Excon).to receive(:put).with(callback)
+          expect(version).to receive_message_chain(:box, :organization, :account, :client, :request).
+            with(method: :put, path: callback)
           subject.upload(direct: true) {|_|}
         end
 

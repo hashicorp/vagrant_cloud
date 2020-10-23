@@ -42,6 +42,7 @@ module VagrantCloud
       class ProviderNotFoundError < BoxError; end
       class VersionExistsError < BoxError; end
       class VersionStatusChangeError < BoxError; end
+      class VersionProviderExistsError < BoxError; end
     end
   end
 end
