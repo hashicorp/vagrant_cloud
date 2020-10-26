@@ -43,7 +43,10 @@ describe VagrantCloud::Box::Version do
     end
 
     context "when version exists" do
-      before { allow(subject).to receive(:exist?).and_return(true) }
+      before do
+        allow(subject).to receive(:exist?).and_return(true)
+        allow(box).to receive(:clean)
+      end
 
       it "should make a version deletion request" do
         expect(box).to receive_message_chain(:organization, :account, :client, :box_version_delete)
@@ -64,8 +67,10 @@ describe VagrantCloud::Box::Version do
 
       it "should delete the version from the box versions" do
         versions = double("versions")
+        expect(versions).to receive(:dup).and_return(versions)
         expect(box).to receive(:versions).and_return(versions)
-        expect(versions).to receive(:delete).with(subject)
+        expect(versions).to receive(:delete).with(subject).and_return(versions)
+        expect(box).to receive(:clean).with(data: {versions: versions})
         subject.delete
       end
     end
@@ -167,6 +172,12 @@ describe VagrantCloud::Box::Version do
     it "should add provider to providers collection" do
       pv = subject.add_provider("test")
       expect(subject.providers).to include(pv)
+    end
+
+    it "should raise error when provider exists" do
+      subject.add_provider("test")
+      expect { subject.add_provider("test") }.
+        to raise_error(VagrantCloud::Error::BoxError::VersionProviderExistsError)
     end
   end
 

@@ -91,8 +91,10 @@ module VagrantCloud
     # @param [Hash] params Parameters to send with request
     # @return [Hash]
     def request(path:, method: :get, params: {})
-      # Build the full path for the request and clean it
-      path = [path_base, path].compact.join("/").gsub(/\/{2,}/, "/")
+      if !path.start_with?(path_base)
+        # Build the full path for the request and clean it
+        path = [path_base, path].compact.join("/").gsub(/\/{2,}/, "/")
+      end
       method = method.to_s.downcase.to_sym
 
       # Build base request parameters
@@ -172,8 +174,12 @@ module VagrantCloud
           login: username,
           password: password
         },
-        description: description,
-        two_factor: code
+        token: {
+          description: description
+        },
+        two_factor: {
+          code: code
+        }
       }
       request(method: :post, path: "authenticate", params: params)
     end

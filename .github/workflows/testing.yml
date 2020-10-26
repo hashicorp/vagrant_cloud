@@ -1,14 +1,14 @@
 on:
   push:
     branches:
-      - master
+      - main
       - 'test-*'
     paths:
       - 'lib/**'
       - 'spec/**'
   pull_request:
     branches:
-      - master
+      - main
     paths:
       - 'lib/**'
       - 'spec/**'

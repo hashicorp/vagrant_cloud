@@ -7,7 +7,8 @@ module VagrantCloud
       #
       # @param [String] upload_url URL for uploading file asset
       # @param [String] callback_url URL callback to PUT after successful upload
-      DirectUpload = Struct.new(:upload_url, :callback_url, keyword_init: true)
+      # @param [Proc] callback Callable proc to perform callback via configured client
+      DirectUpload = Struct.new(:upload_url, :callback_url, :callback, keyword_init: true)
 
       attr_reader :version
       attr_required :name
@@ -36,7 +37,9 @@ module VagrantCloud
             version: version.version,
             provider: name
           )
-          version.providers.delete(self)
+          pv = version.providers.dup
+          pv.delete(self)
+          version.clean(data: {providers: pv})
         end
         nil
       end
@@ -93,25 +96,24 @@ module VagrantCloud
         end
         result = DirectUpload.new(
           upload_url: r[:upload_path],
-          callback_url: r[:callback]
+          callback_url: r[:callback],
+          callback: proc {
+            if r[:callback]
+              version.box.organization.account.client.
+                request(method: :put, path: URI.parse(r[:callback]).path)
+            end
+          }
         )
         if block_given?
           block_r = yield result.upload_url
-          Excon.put(result.callback_url) if direct
+          result[:callback].call
           block_r
         elsif path
           File.open(path, "rb") do |file|
             chunks = lambda { file.read(Excon.defaults[:chunk_size]).to_s }
-            # When performing a direct upload, we must POST the request
-            # to the provided upload URL. If it's just a regular upload
-            # then we just PUT to the upload URL.
-            if direct
-              Excon.post(result.upload_url, request_block: chunks)
-            else
-              Excon.put(result.upload_url, request_block: chunks)
-            end
+            Excon.put(result.upload_url, request_block: chunks)
           end
-          Excon.put(result.callback_url) if direct
+          result[:callback].call
           self
         else
           # When returning upload information for requester to complete,

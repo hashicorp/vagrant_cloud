@@ -148,17 +148,38 @@ describe VagrantCloud::Box do
   end
 
   describe "#versions_on_demand" do
-    it "should load versions when called" do
-      expect(account).to receive_message_chain(:client, :box_get).and_return(versions: [])
-      subject.versions_on_demand
+    context "when box exists" do
+      before { allow(subject).to receive(:exist?).and_return(true) }
+
+      it "should load versions when called" do
+        expect(account).to receive_message_chain(:client, :box_get).and_return(versions: [])
+        subject.versions_on_demand
+      end
+
+      it "should not load versions after initial load" do
+        expect(subject.dirty?(:versions)).to be_falsey
+        expect(account).to receive_message_chain(:client, :box_get).and_return(versions: [])
+        subject.versions_on_demand
+        expect(account).not_to receive(:client)
+        subject.versions_on_demand
+      end
     end
 
-    it "should not load versions after initial load" do
-      expect(subject.dirty?(:versions)).to be_falsey
-      expect(account).to receive_message_chain(:client, :box_get).and_return(versions: [])
-      subject.versions_on_demand
-      expect(account).not_to receive(:client)
-      subject.versions_on_demand
+    context "when box does not exist" do
+      before { allow(subject).to receive(:exist?).and_return(false) }
+
+      it "should not load versions when called" do
+        expect(account).not_to receive(:client)
+        subject.versions_on_demand
+      end
+
+      it "should not load versions after initial load" do
+        expect(subject.dirty?(:versions)).to be_falsey
+        expect(account).not_to receive(:client)
+        subject.versions_on_demand
+        expect(account).not_to receive(:client)
+        subject.versions_on_demand
+      end
     end
   end
 

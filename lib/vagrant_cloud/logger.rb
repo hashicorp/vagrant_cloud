@@ -26,11 +26,15 @@ module VagrantCloud
           # sure that the log level is an integer, as Log4r requires.
           level = nil if !level.is_a?(Integer)
 
-          base_formatter = Log4r::PatternFormatter.new(
-            pattern: "%d [%5l] %m",
-            date_pattern: "%F %T"
-          )
-          Log4r::Outputter.stderr.formatter = base_formatter
+          # Only override the log output format if the default is set
+          if Log4r::Outputter.stderr.formatter.is_a?(Log4r::DefaultFormatter)
+            base_formatter = Log4r::PatternFormatter.new(
+              pattern: "%d [%5l] %m",
+              date_pattern: "%F %T"
+            )
+            Log4r::Outputter.stderr.formatter = base_formatter
+          end
+
           logger = Log4r::Logger.new("vagrantcloud")
           logger.outputters = Log4r::Outputter.stderr
           logger.level = level
