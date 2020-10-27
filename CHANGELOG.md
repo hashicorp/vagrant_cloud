@@ -1,3 +1,5 @@
+# v3.0.2 (Unreleased)
+
 # v3.0.1 (October 27, 2020)
 
 * Fixes on authentication related client methods [GH-65](https://github.com/hashicorp/vagrant_cloud/pull/65)
