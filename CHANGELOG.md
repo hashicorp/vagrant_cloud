@@ -1,5 +1,8 @@
-# v3.0.1 (Unreleased)
+# v3.0.1 (October 27, 2020)
 
+* Fixes on authentication related client methods [GH-65](https://github.com/hashicorp/vagrant_cloud/pull/65)
+* Prevent frozen data modifications on deletions [GH-65](https://github.com/hashicorp/vagrant_cloud/pull/65)
+* Update direct upload callback behaviors [GH-65](https://github.com/hashicorp/vagrant_cloud/pull/65)
 
 # v3.0.0 (September 21, 2020)
 
