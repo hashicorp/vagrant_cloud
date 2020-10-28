@@ -126,7 +126,15 @@ module VagrantCloud
       # Set a request ID so we can track request/responses
       request_params[:headers] = {"X-Request-Id" => SecureRandom.uuid}
 
-      result = with_connection { |c| c.request(request_params) }
+      begin
+        result = with_connection { |c| c.request(request_params) }
+      rescue Excon::Error::HTTPStatus => err
+        raise Error::ClientError::RequestError.new(
+              "Vagrant Cloud request failed", err.response.body, err.response.status)
+      rescue Excon::Error => err
+        raise Error::ClientError, err.message
+      end
+
       parse_json(result.body)
     end
 
