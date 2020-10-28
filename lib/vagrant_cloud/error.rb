@@ -2,8 +2,8 @@ module VagrantCloud
   class Error < StandardError
     class ClientError < Error
       class RequestError < ClientError
-        attr_accessor :error_arr
         attr_accessor :error_code
+        attr_accessor :error_arr
 
         def initialize(msg, http_body, http_code)
           message = msg
@@ -22,7 +22,7 @@ module VagrantCloud
             vagrant_cloud_msg = err.message
           end
 
-          @error_arr = vagrant_cloud_msg
+          @error_arr = Array(vagrant_cloud_msg)
           @error_code = http_code.to_i
           super(message)
         end

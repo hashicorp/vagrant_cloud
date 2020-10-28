@@ -207,6 +207,32 @@ describe VagrantCloud::Client do
         subject.request(path: "/", method: :post)
       end
     end
+
+    context "with errors" do
+      context "with request errors" do
+        let(:response) { double("response", status: 403, body: '{"errors": ["forbidden request"]}') }
+
+        before { expect(connection).to receive(:request).and_raise(Excon::Error::Forbidden.new("forbidden", nil, response)) }
+
+        it "should raise a wrapped error" do
+          expect { subject.request(path: "/") }.to raise_error(VagrantCloud::Error::ClientError::RequestError)
+        end
+
+        it "should set the error message from the content" do
+          err = nil
+          subject.request(path: "/")
+        rescue => err
+          expect(err.error_arr).to eq(["forbidden request"])
+        end
+
+        it "should set the error status code" do
+          err = nil
+          subject.request(path: "/")
+        rescue => err
+          expect(err.error_code).to eq(403)
+        end
+      end
+    end
   end
 
   describe "#clone" do
