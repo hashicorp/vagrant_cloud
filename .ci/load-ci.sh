@@ -8,8 +8,7 @@ ldir="$(realpath ./.ci-utility-files)"
 if [ ! -e "${ldir}/.complete" ]; then
 
     # Validate that we have the AWS CLI available
-    command -v aws > /dev/null 2>&1
-    if [ $? -ne 0 ]; then
+    if ! command -v aws > /dev/null 2>&1; then
         echo "⚠ ERROR: Missing required aws executable ⚠"
         exit 1
     fi
@@ -21,22 +20,34 @@ if [ ! -e "${ldir}/.complete" ]; then
     fi
 
     # Jump into local directory and grab files
-    pushd "${ldir}"
+    if ! pushd "${ldir}"; then
+        echo "⁉ ERROR: Unexpected error, failed to relocate to expected directory ⁉"
+        exit 1
+    fi
+
     if ! aws s3 sync "${VAGRANT_CI_LOADER_BUCKET}/ci-files/" ./; then
         echo "🛑 ERROR: Failed to retrieve utility files 🛑"
         exit 1
     fi
 
-    chmod a+x ./*
+    if ! chmod a+x ./*; then
+        echo "⛔ ERROR: Failed to set permissions on CI files ⛔"
+        exit 1
+    fi
 
     # Mark that we have pulled files
-    touch .complete
+    touch .complete || echo "WARNING: Failed to mark CI files as fetched"
+
+    # Time to load and configure
+    if ! popd; then
+        echo "⁉ ERROR: Unexpected error, failed to relocate to expected directory ⁉"
+        exit 1
+    fi
 fi
 
-# Time to load and configure
-popd
 source "${ldir}/common.sh"
 export PATH="${PATH}:${ldir}"
 
 # And we are done!
 echo "🎉 VagrantCI Loaded! 🎉"
+
