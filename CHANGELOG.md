@@ -1,3 +1,5 @@
+# v3.0.3 (UNRELEASED)
+
 # v3.0.2 (October 30, 2020)
 
 * Raise custom exception on request error [GH-67](https://github.com/hashicorp/vagrant_cloud/pull/67)
