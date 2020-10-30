@@ -17,4 +17,4 @@ slack "📢 New vagrant_cloud release has been triggered"
 # Build and publish our gem
 publish_to_rubygems
 
-slack -m "New version of vagrant_cloud published: v${version}"
+slack -m "New version of vagrant_cloud published ${tag}"
