@@ -104,7 +104,7 @@ require "vagrant_cloud"
 
 account = VagrantCloud::Account.new(access_token: "MY_TOKEN")
 org = account.organization(name: "hashicorp")
-box = org.boxes.select { |b| b.name == "bionic64" }
+box = org.boxes.detect { |b| b.name == "bionic64" }
 
 puts "Box: #{box[:tag]} Description: #{box[:description]}"
 ```
