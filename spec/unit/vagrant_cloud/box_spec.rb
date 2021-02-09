@@ -197,7 +197,8 @@ describe VagrantCloud::Box do
       before { allow(subject).to receive(:exist?).and_return(false) }
 
       it "should save the box" do
-        expect(subject).to receive(:save_box)
+        expect(subject).to receive(:save_box).ordered
+        expect(subject).to receive(:save_versions).ordered
         subject.save
       end
     end
@@ -218,6 +219,15 @@ describe VagrantCloud::Box do
         expect(subject).not_to receive(:save_box)
         expect(subject).not_to receive(:save_versions)
         subject.save
+      end
+
+      context "when box includes unsaved versions" do
+        before { subject.add_version("1.0.0") }
+  
+        it "should save the versions" do
+          expect(subject).to receive(:save_versions)
+          subject.save
+        end
       end
 
       context "when box attribute is updated" do
@@ -322,7 +332,7 @@ describe VagrantCloud::Box do
     end
 
     it "should call save on any versions" do
-      v = subject.add_version("1.0.0")
+      subject.add_version("1.0.0")
       expect(account).to receive_message_chain(:client, :box_version_create).
         and_return({})
       subject.send(:save_versions)
