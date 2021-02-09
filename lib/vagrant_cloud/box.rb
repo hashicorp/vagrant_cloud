@@ -108,8 +108,8 @@ module VagrantCloud
     #
     # @return [self]
     def save
-      save_versions if dirty?(deep: true)
       save_box if dirty?
+      save_versions if dirty?(deep: true)
       self
     end
 
