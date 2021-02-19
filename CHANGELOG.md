@@ -1,4 +1,4 @@
-# v3.0.3 (UNRELEASED)
+# v3.0.3 (February 19, 2021)
 
 * Save box before saving versions [GH-70](https://github.com/hashicorp/vagrant_cloud/pull/70)
 
