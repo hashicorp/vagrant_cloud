@@ -160,7 +160,8 @@ module VagrantCloud
           version: version.version,
           provider: name,
           checksum: checksum,
-          checksum_type: checksum_type
+          checksum_type: checksum_type,
+          url: url
         }
         if exist?
           result = version.box.organization.account.client.box_version_provider_update(**req_args)

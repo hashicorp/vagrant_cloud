@@ -7,6 +7,7 @@ describe VagrantCloud::Box::Provider do
   let(:box_username) { double("box_username") }
   let(:box_name) { double("box_name") }
   let(:version_version) { double("version_version") }
+  let(:box_url) { double("box_url") }
 
 
   let(:subject) { described_class.new(version: version, name: provider_name) }
@@ -361,6 +362,9 @@ describe VagrantCloud::Box::Provider do
   end
 
   describe "#save_provider" do
+    let(:checksum) { double("checksum") }
+    let(:checksum_type) { double("checksum_type") }
+
     before do
       allow(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
         and_return({})
@@ -406,14 +410,23 @@ describe VagrantCloud::Box::Provider do
       end
 
       it "should include checksum" do
+        subject.checksum = checksum
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
-          with(hash_including(checksum: subject.checksum)).and_return({})
+          with(hash_including(checksum: checksum)).and_return({})
         subject.send(:save_provider)
       end
 
-      it "should inclufde checksum_type" do
+      it "should include checksum_type" do
+        subject.checksum_type = checksum_type
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
-          with(hash_including(checksum_type: subject.checksum_type)).and_return({})
+          with(hash_including(checksum_type: checksum_type)).and_return({})
+        subject.send(:save_provider)
+      end
+
+      it "should include URL" do
+        subject.url = box_url
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
+          with(hash_including(url: box_url)).and_return({})
         subject.send(:save_provider)
       end
     end
@@ -456,14 +469,23 @@ describe VagrantCloud::Box::Provider do
       end
 
       it "should include checksum" do
+        subject.checksum = checksum
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
-          with(hash_including(checksum: subject.checksum)).and_return({})
+          with(hash_including(checksum: checksum)).and_return({})
         subject.send(:save_provider)
       end
 
-      it "should inclufde checksum_type" do
+      it "should include checksum_type" do
+        subject.checksum_type = checksum_type
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
-          with(hash_including(checksum_type: subject.checksum_type)).and_return({})
+          with(hash_including(checksum_type: checksum_type)).and_return({})
+        subject.send(:save_provider)
+      end
+
+      it "should include URL" do
+        subject.url = box_url
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
+          with(hash_including(url: box_url)).and_return({})
         subject.send(:save_provider)
       end
     end
