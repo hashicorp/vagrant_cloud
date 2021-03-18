@@ -1,4 +1,4 @@
-# v3.0.4 (UNRELEASED)
+# v3.0.4 (March 18, 2021)
  
 * Ensure URL is included when saving provider [GH-69](https://github.com/hashicorp/vagrant_cloud/pull/69)
 
