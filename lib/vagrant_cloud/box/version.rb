@@ -20,7 +20,7 @@ module VagrantCloud
             Provider.load(version: self, **provider)
           end
         end
-        super(opts)
+        super(**opts)
         clean!
       end
 

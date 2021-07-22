@@ -18,7 +18,7 @@ module VagrantCloud
       @organization = organization
       @versions_loaded = false
       opts[:username] = organization.username
-      super(opts)
+      super(**opts)
       if opts[:versions] && !opts[:versions].empty?
         self.versions= Array(opts[:versions]).map do |version|
           Box::Version.load(box: self, **version)
