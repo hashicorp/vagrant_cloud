@@ -1,3 +1,5 @@
+# v3.0.6 (UNRELEASED)
+
 # v3.0.5 (July 22, 2021)
 
 * Updates for Ruby 3 compatibility [GH-76](https://github.com/hashicorp/vagrant_cloud/pull/76)
