@@ -15,6 +15,7 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'excon', '~> 0.73'
   s.add_runtime_dependency 'log4r', '~> 1.1.10'
+  s.add_runtime_dependency 'rexml', '~> 3.2.5'
 
   s.add_development_dependency 'rake', '~> 12.3'
   s.add_development_dependency 'rspec', '~> 3.0'
