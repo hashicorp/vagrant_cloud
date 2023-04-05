@@ -27,9 +27,9 @@ jobs:
     runs-on: ubuntu-18.04
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@ac593985615ec2ede58e132d2e21d2b1cbd6127c # v3.3.0
     - name: Set up Ruby 2.6
-      uses: actions/setup-ruby@v1
+      uses: actions/setup-ruby@v1 # TSCCR: no versions of "actions/setup-ruby" are trusted
       with:
         version: 2.6.x
     - name: Publish to RubyGems
