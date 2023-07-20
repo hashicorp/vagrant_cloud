@@ -8,9 +8,15 @@ describe VagrantCloud::Box::Provider do
   let(:box_name) { double("box_name") }
   let(:version_version) { double("version_version") }
   let(:box_url) { double("box_url") }
+  let(:architecture) { "BOX_ARCHITECTURE" }
 
-
-  let(:subject) { described_class.new(version: version, name: provider_name) }
+  let(:subject) {
+    described_class.new(
+      version: version,
+      name: provider_name,
+      architecture: architecture
+    )
+  }
 
   before do
     allow(version).to receive(:is_a?).with(VagrantCloud::Box::Version).and_return(true)
@@ -76,6 +82,12 @@ describe VagrantCloud::Box::Provider do
       it "should send provider_name" do
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_delete).
           with(hash_including(provider: provider_name))
+        subject.delete
+      end
+
+      it "should send architecture" do
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_delete).
+          with(hash_including(architecture: architecture))
         subject.delete
       end
 
@@ -423,11 +435,34 @@ describe VagrantCloud::Box::Provider do
         subject.send(:save_provider)
       end
 
+      it "should include architecture" do
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
+          with(hash_including(architecture: architecture)).and_return({})
+        subject.send(:save_provider)
+      end
+
+      it "should include new architecture" do
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
+          with(hash_including(new_architecture: architecture)).and_return({})
+        subject.send(:save_provider)
+      end
+
       it "should include URL" do
         subject.url = box_url
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
           with(hash_including(url: box_url)).and_return({})
         subject.send(:save_provider)
+      end
+
+      context "when architecture is changed" do
+        let(:new_architecture) { "NEW_BOX_ARCHITECTURE" }
+
+        it "should include original and new architectures" do
+          subject.architecture = new_architecture
+          expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_update).
+            with(hash_including(new_architecture: new_architecture, architecture: architecture)).and_return({})
+          subject.send(:save_provider)
+        end
       end
     end
 
@@ -479,6 +514,12 @@ describe VagrantCloud::Box::Provider do
         subject.checksum_type = checksum_type
         expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
           with(hash_including(checksum_type: checksum_type)).and_return({})
+        subject.send(:save_provider)
+      end
+
+      it "should include architecture" do
+        expect(version).to receive_message_chain(:box, :organization, :account, :client, :box_version_provider_create).
+          with(hash_including(architecture: architecture)).and_return({})
         subject.send(:save_provider)
       end
 

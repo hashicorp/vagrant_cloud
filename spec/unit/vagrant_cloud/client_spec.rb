@@ -289,11 +289,26 @@ describe VagrantCloud::Client do
       subject.authentication_token_create(username: username, password: password,
         description: description, code: code)
     end
+
+    it "should use v1 API" do
+      expect(subject).to receive(:request) do |args|
+        expect(args[:api_version]).to eq(1)
+      end
+
+      subject.authentication_token_create(username: username, password: password)
+    end
   end
 
   describe "#authentication_token_delete" do
     it "should send delete request" do
       expect(subject).to receive(:request).with(hash_including(method: :delete, path: "authenticate"))
+      subject.authentication_token_delete
+    end
+
+    it "should use v1 API" do
+      expect(subject).to receive(:request) do |args|
+        expect(args[:api_version]).to eq(1)
+      end
       subject.authentication_token_delete
     end
   end
@@ -333,6 +348,13 @@ describe VagrantCloud::Client do
 
     it "should post to the two factor request path" do
       expect(subject).to receive(:request).with(hash_including(method: :post, path: "two-factor/request-code"))
+      subject.authentication_request_2fa_code(**args)
+    end
+
+    it "should use v1 API" do
+      expect(subject).to receive(:request) do |args|
+        expect(args[:api_version]).to eq(1)
+      end
       subject.authentication_request_2fa_code(**args)
     end
   end
@@ -725,6 +747,7 @@ describe VagrantCloud::Client do
     let(:name) { double("name") }
     let(:version) { double("version") }
     let(:provider) { double("provider") }
+    let(:architecture) { "TEST_ARCHITECTURE" }
 
     before { allow(subject).to receive(:request) }
 
@@ -748,9 +771,29 @@ describe VagrantCloud::Client do
         to raise_error(ArgumentError)
     end
 
+    it "should include architecture when provided" do
+      expect(subject).to receive(:request) do |args|
+        expect(args[:path]).to include(architecture)
+      end
+
+      subject.box_version_provider_get(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        architecture: architecture
+      )
+    end
+
     it "should request the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_get(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_get(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
   end
 
@@ -762,58 +805,231 @@ describe VagrantCloud::Client do
     let(:url) { double("url") }
     let(:checksum) { double("checksum") }
     let(:checksum_type) { double("checksum_type") }
+    let(:architecture) { double("architecture") }
+    let(:default_architecture) { double("default_architecture") }
 
     before { allow(subject).to receive(:request) }
 
     it "should require username is provided" do
-      expect { subject.box_version_provider_create(name: name, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_create(
+          name: name,
+          version: version,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require name is provided" do
-      expect { subject.box_version_provider_create(username: username, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_create(
+          username: username,
+          version: version,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require version is provided" do
-      expect { subject.box_version_provider_create(username: username, name: name, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_create(
+          username: username,
+          name: name,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require provider is provided" do
-      expect { subject.box_version_provider_create(username: username, name: name, version: version) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_create(
+          username: username,
+          name: name,
+          version: version
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should create the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_create(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_create(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should create the box version provider with POST method" do
       expect(subject).to receive(:request).with(hash_including(method: :post))
-      subject.box_version_provider_create(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_create(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should include url if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :url)).to eq(url)
       end
-      subject.box_version_provider_create(username: username, name: name, version: version, provider: provider, url: url)
+
+      subject.box_version_provider_create(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        url: url
+      )
     end
 
     it "should include checksum if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :checksum)).to eq(checksum)
       end
-      subject.box_version_provider_create(username: username, name: name, version: version, provider: provider, checksum: checksum)
+
+      subject.box_version_provider_create(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        checksum: checksum
+      )
     end
 
     it "should include checksum_type if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :checksum_type)).to eq(checksum_type)
       end
-      subject.box_version_provider_create(username: username, name: name, version: version, provider: provider, checksum_type: checksum_type)
+
+      subject.box_version_provider_create(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        checksum_type: checksum_type
+      )
+    end
+
+    context "architecture" do
+      context "when not included" do
+        after do
+          subject.box_version_provider_create(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type
+          )
+        end
+
+        it "should not be in params" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider).key?(:architecture)).to be_falsey
+          end
+        end
+
+        it "should call the v1 API" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:api_version]).to eq(1)
+          end
+        end
+      end
+
+      context "when included" do
+        after do
+          subject.box_version_provider_create(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture
+          )
+        end
+
+        it "should be in params" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :architecture)).to eq(architecture)
+          end
+        end
+
+        it "should call the v2 API" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:api_version]).to eq(2)
+          end
+        end
+      end
+    end
+
+    context "default architecture" do
+      it "should be default nil value when not provided" do
+        expect(subject).to receive(:request) do |args|
+          expect(args.dig(:params, :provider, :default_architecture)).to eq(VagrantCloud::Data::Nil)
+        end
+
+        subject.box_version_provider_create(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+          architecture: architecture,
+          checksum_type: checksum_type
+        )
+      end
+
+      context "when value is true" do
+        it "should include default architecture as true" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :default_architecture)).to be_truthy
+          end
+
+          subject.box_version_provider_create(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture,
+            default_architecture: true
+          )
+        end
+      end
+
+      context "when value is false" do
+        it "should include default architecture as false" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :default_architecture)).to be(false)
+          end
+
+          subject.box_version_provider_create(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture,
+            default_architecture: false
+          )
+        end
+      end
+
+      context "when architecture is not provided" do
+        it "should not be included" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider).key?(:default_architecture)).to be_falsey
+          end
+
+          subject.box_version_provider_create(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            default_architecture: false
+          )
+        end
+      end
     end
   end
 
@@ -825,58 +1041,281 @@ describe VagrantCloud::Client do
     let(:url) { double("url") }
     let(:checksum) { double("checksum") }
     let(:checksum_type) { double("checksum_type") }
+    let(:architecture) { "TEST_ARCHITECTURE" }
+    let(:new_architecture) { double("new_architecture") }
 
     before { allow(subject).to receive(:request) }
 
     it "should require username is provided" do
-      expect { subject.box_version_provider_update(name: name, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_update(
+          name: name,
+          version: version,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require name is provided" do
-      expect { subject.box_version_provider_update(username: username, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_update(
+          username: username,
+          version: version,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require version is provided" do
-      expect { subject.box_version_provider_update(username: username, name: name, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_update(
+          username: username,
+          name: name,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require provider is provided" do
-      expect { subject.box_version_provider_update(username: username, name: name, version: version) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_update(
+          username: username,
+          name: name,
+          version: version
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should update the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_update(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_update(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should update the box version provider with PUT method" do
       expect(subject).to receive(:request).with(hash_including(method: :put))
-      subject.box_version_provider_update(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_update(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should include url if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :url)).to eq(url)
       end
-      subject.box_version_provider_update(username: username, name: name, version: version, provider: provider, url: url)
+
+      subject.box_version_provider_update(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        url: url
+      )
     end
 
     it "should include checksum if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :checksum)).to eq(checksum)
       end
-      subject.box_version_provider_update(username: username, name: name, version: version, provider: provider, checksum: checksum)
+
+      subject.box_version_provider_update(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        checksum: checksum
+      )
     end
 
     it "should include checksum_type if provided" do
       expect(subject).to receive(:request) do |args|
         expect(args.dig(:params, :provider, :checksum_type)).to eq(checksum_type)
       end
-      subject.box_version_provider_update(username: username, name: name, version: version, provider: provider, checksum_type: checksum_type)
+
+      subject.box_version_provider_update(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider,
+        checksum_type: checksum_type
+      )
+    end
+
+    context "architecture" do
+      context "when provided" do
+        after do
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            architecture: architecture,
+            checksum_type: checksum_type
+          )
+        end
+
+        it "should be included in the path" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:path]).to include(architecture)
+          end
+        end
+
+        it "should use v2 API" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:api_version]).to eq(2)
+          end
+        end
+      end
+
+      context "when not provided" do
+        after do
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type
+          )
+        end
+
+        it "should use v1 API" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:api_version]).to eq(1)
+          end
+        end
+      end
+    end
+
+    context "new architecture" do
+      context "when architecture is provided" do
+        it "should be default nil value when not provided" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :architecture)).to eq(VagrantCloud::Data::Nil)
+          end
+
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture
+          )
+        end
+
+        it "should be included when provided" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :architecture)).to eq(new_architecture)
+          end
+
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture,
+            new_architecture: new_architecture
+          )
+        end
+      end
+
+      context "when architecture is not provided" do
+        it "should not be included in params" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider).key?(:new_architecture)).to be(false)
+          end
+
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            new_architecture: new_architecture
+          )
+        end
+      end
+    end
+
+    context "default architecture" do
+      context "when architecture is provided" do
+        it "should be default nil value when not provided" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider, :default_architecture)).to eq(VagrantCloud::Data::Nil)
+
+          end
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            architecture: architecture,
+          )
+        end
+
+        context "when value is true" do
+          it "should include default architecture as true" do
+            expect(subject).to receive(:request) do |args|
+              expect(args.dig(:params, :provider, :default_architecture)).to be_truthy
+            end
+
+            subject.box_version_provider_update(
+              username: username,
+              name: name,
+              version: version,
+              provider: provider,
+              checksum_type: checksum_type,
+              architecture: architecture,
+              default_architecture: true
+            )
+          end
+        end
+
+        context "when value is false" do
+          it "should include default architecture as false" do
+            expect(subject).to receive(:request) do |args|
+              expect(args.dig(:params, :provider, :default_architecture)).to be(false)
+            end
+
+            subject.box_version_provider_update(
+              username: username,
+              name: name,
+              version: version,
+              provider: provider,
+              checksum_type: checksum_type,
+              architecture: architecture,
+              default_architecture: false
+            )
+          end
+        end
+      end
+
+      context "when architecture is not provided" do
+        it "should not be included in params" do
+          expect(subject).to receive(:request) do |args|
+            expect(args.dig(:params, :provider).key?(:default_architecture)).to be(false)
+          end
+
+          subject.box_version_provider_update(
+            username: username,
+            name: name,
+            version: version,
+            provider: provider,
+            checksum_type: checksum_type,
+            default_architecture: true
+          )
+        end
+      end
     end
   end
 
@@ -885,37 +1324,106 @@ describe VagrantCloud::Client do
     let(:name) { double("name") }
     let(:version) { double("version") }
     let(:provider) { double("provider") }
+    let(:architecture) { "TEST_ARCHITECTURE" }
 
     before { allow(subject).to receive(:request) }
 
     it "should require username is provided" do
-      expect { subject.box_version_provider_delete(name: name, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_delete(
+          name: name,
+          version: version,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require name is provided" do
-      expect { subject.box_version_provider_delete(username: username, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_delete(
+          username: username,
+          version: version,
+          provider: provider)
+      }.to raise_error(ArgumentError)
     end
 
     it "should require version is provided" do
-      expect { subject.box_version_provider_delete(username: username, name: name, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_delete(
+          username: username,
+          name: name,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require provider is provided" do
-      expect { subject.box_version_provider_delete(username: username, name: name, version: version) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_delete(
+          username: username,
+          name: name,
+          version: version)
+      }.to raise_error(ArgumentError)
     end
 
     it "should delete the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_delete(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_delete(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should delete the box version provider with DELETE method" do
       expect(subject).to receive(:request).with(hash_including(method: :delete))
-      subject.box_version_provider_delete(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_delete(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
+    end
+
+    context "with architecture" do
+      after do
+        subject.box_version_provider_delete(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+          architecture: architecture
+        )
+      end
+
+      it "should include architecture when provided" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:path]).to include(architecture)
+        end
+      end
+
+      it "should use v2 API" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:api_version]).to eq(2)
+        end
+      end
+    end
+
+    context "without architecture" do
+      it "should use v1 API" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:api_version]).to eq(1)
+        end
+
+        subject.box_version_provider_delete(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+        )
+      end
     end
   end
 
@@ -924,44 +1432,122 @@ describe VagrantCloud::Client do
     let(:name) { double("name") }
     let(:version) { double("version") }
     let(:provider) { double("provider") }
+    let(:architecture) { "TEST_ARCHITECTURE" }
 
     before { allow(subject).to receive(:request) }
 
     it "should require username is provided" do
-      expect { subject.box_version_provider_upload(name: name, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload(
+          name: name,
+          version: version,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require name is provided" do
-      expect { subject.box_version_provider_upload(username: username, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload(
+          username: username,
+          version: version,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require version is provided" do
-      expect { subject.box_version_provider_upload(username: username, name: name, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload(
+          username: username,
+          name: name,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require provider is provided" do
-      expect { subject.box_version_provider_upload(username: username, name: name, version: version) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload(
+          username: username,
+          name: name,
+          version: version
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should send upload request for the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_upload(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should request the box version provider upload with GET method" do
       expect(subject).to receive(:request).with(hash_including(method: :get))
-      subject.box_version_provider_upload(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
+    end
+
+    context "with architecture" do
+      after do
+        subject.box_version_provider_upload(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+          architecture: architecture
+        )
+      end
+
+      it "should include architecture when provided" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:path]).to include(architecture)
+        end
+      end
+
+      it "should use v2 API" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:api_version]).to eq(2)
+        end
+      end
+    end
+
+    context "without architecture" do
+      it "should use v1 API" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:api_version]).to eq(1)
+        end
+
+        subject.box_version_provider_upload(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider
+        )
+      end
     end
 
     it "should request the upload path" do
       expect(subject).to receive(:request) do |args|
         expect(args[:path]).to include("upload")
       end
-      subject.box_version_provider_upload(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
   end
 
@@ -970,44 +1556,122 @@ describe VagrantCloud::Client do
     let(:name) { double("name") }
     let(:version) { double("version") }
     let(:provider) { double("provider") }
+    let(:architecture) { "TEST_ARCHITECTURE" }
 
     before { allow(subject).to receive(:request) }
 
     it "should require username is provided" do
-      expect { subject.box_version_provider_upload_direct(name: name, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload_direct(
+          name: name,
+          version: version,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require name is provided" do
-      expect { subject.box_version_provider_upload_direct(username: username, version: version, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload_direct(
+          username: username,
+          version: version,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require version is provided" do
-      expect { subject.box_version_provider_upload_direct(username: username, name: name, provider: provider) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload_direct(
+          username: username,
+          name: name,
+          provider: provider
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should require provider is provided" do
-      expect { subject.box_version_provider_upload_direct(username: username, name: name, version: version) }.
-        to raise_error(ArgumentError)
+      expect {
+        subject.box_version_provider_upload_direct(
+          username: username,
+          name: name,
+          version: version
+        )
+      }.to raise_error(ArgumentError)
     end
 
     it "should send upload request for the box version provider" do
       expect(subject).to receive(:request)
-      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload_direct(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should request the box version provider upload with GET method" do
       expect(subject).to receive(:request).with(hash_including(method: :get))
-      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload_direct(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
     end
 
     it "should request the upload path" do
       expect(subject).to receive(:request) do |args|
         expect(args[:path]).to include("upload")
       end
-      subject.box_version_provider_upload_direct(username: username, name: name, version: version, provider: provider)
+
+      subject.box_version_provider_upload_direct(
+        username: username,
+        name: name,
+        version: version,
+        provider: provider
+      )
+    end
+
+    context "with architecture" do
+      after do
+        subject.box_version_provider_upload_direct(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+          architecture: architecture
+        )
+
+        it "should be included in path" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:path]).to include(architecture)
+          end
+        end
+
+        it "should use v2 API" do
+          expect(subject).to receive(:request) do |args|
+            expect(args[:api_version]).to eq(2)
+          end
+        end
+      end
+    end
+
+    context "without architecture" do
+      it "should use v1 API" do
+        expect(subject).to receive(:request) do |args|
+          expect(args[:api_version]).to eq(1)
+        end
+
+        subject.box_version_provider_upload_direct(
+          username: username,
+          name: name,
+          version: version,
+          provider: provider,
+        )
+      end
     end
   end
 end

@@ -18,6 +18,7 @@ describe VagrantCloud::Search do
     allow(account).to receive(:is_a?).with(VagrantCloud::Account).and_return(true)
     allow(client).to receive(:is_a?).with(VagrantCloud::Client).and_return(true)
     allow(client_with_token).to receive(:request).and_return({})
+    allow(client_with_token).to receive(:authentication_token_validate).and_return({})
     allow(client).to receive(:search).and_return(response)
   end
 

@@ -179,6 +179,34 @@ describe VagrantCloud::Box::Version do
       expect { subject.add_provider("test") }.
         to raise_error(VagrantCloud::Error::BoxError::VersionProviderExistsError)
     end
+
+    context "with architecture" do
+      it "should add provider to collection and include architecture" do
+        pv = subject.add_provider("test", "test-arch")
+        expect(subject.providers).to include(pv)
+        expect(pv.architecture).to eq("test-arch")
+      end
+
+      it "should add multiple same providers with different architectures" do
+        ["arch1", "arch2", "arch3"].each do |arch|
+          pv = subject.add_provider("test", arch)
+          expect(subject.providers).to include(pv)
+          expect(pv.architecture).to eq(arch)
+        end
+      end
+
+      it "should raise error when provider exists" do
+        subject.add_provider("test", "test-arch")
+        expect { subject.add_provider("test", "test-arch") }.
+          to raise_error(VagrantCloud::Error::BoxError::VersionProviderExistsError)
+      end
+
+      it "should raise error when adding existing provider without architecture" do
+        subject.add_provider("test", "test-arch")
+        expect { subject.add_provider("test") }.
+          to raise_error(VagrantCloud::Error::BoxError::VersionProviderExistsError)
+      end
+    end
   end
 
   describe "#dirty?" do
