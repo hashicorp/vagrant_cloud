@@ -90,12 +90,19 @@ module VagrantCloud
       #
       # @param [String] pname Name of provider
       # @return [Provider]
-      def add_provider(pname)
-        if providers.any? { |p| p.name == pname }
+      def add_provider(pname, architecture=nil)
+        if providers.any? { |p|
+             p.name == pname &&
+               (architecture.nil? || p.architecture == architecture)
+           }
           raise Error::BoxError::VersionProviderExistsError,
-            "Provider #{pname} already exists for box #{box.tag} version #{version}"
+            "Provider #{pname} already exists for box #{box.tag} version #{version} (#{architecture})"
         end
-        pv = Provider.new(version: self, name: pname)
+        pv = Provider.new(
+          version: self,
+          name: pname,
+        )
+        pv.architecture = architecture if architecture
         clean(data: {providers: providers + [pv]})
         pv
       end

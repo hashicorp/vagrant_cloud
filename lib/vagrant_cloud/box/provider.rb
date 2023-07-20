@@ -14,9 +14,9 @@ module VagrantCloud
       attr_required :name
       attr_optional :hosted, :created_at, :updated_at,
         :checksum, :checksum_type, :original_url, :download_url,
-        :url
+        :url, :architecture, :default_architecture
 
-      attr_mutable :url, :checksum, :checksum_type
+      attr_mutable :url, :checksum, :checksum_type, :architecture, :default_architecture
 
       def initialize(version:, **opts)
         if !version.is_a?(Version)
@@ -35,7 +35,8 @@ module VagrantCloud
             username: version.box.username,
             name: version.box.name,
             version: version.version,
-            provider: name
+            provider: name,
+            architecture: architecture
           )
           pv = version.providers.dup
           pv.delete(self)
@@ -87,7 +88,8 @@ module VagrantCloud
           username: version.box.username,
           name: version.box.name,
           version: version.version,
-          provider: name
+          provider: name,
+          architecture: architecture,
         }
         if direct
           r = version.box.organization.account.client.box_version_provider_upload_direct(**req_args)
@@ -161,9 +163,17 @@ module VagrantCloud
           provider: name,
           checksum: checksum,
           checksum_type: checksum_type,
+          architecture: architecture,
+          default_architecture: default_architecture,
           url: url
         }
         if exist?
+          # If the provider already exists, use the original architecture
+          # value for locating the existing record and use the current
+          # architecture for the new_architecture value so it can be updated
+          # properly
+          req_args[:architecture] = data[:architecture]
+          req_args[:new_architecture] = architecture
           result = version.box.organization.account.client.box_version_provider_update(**req_args)
         else
           result = version.box.organization.account.client.box_version_provider_create(**req_args)
