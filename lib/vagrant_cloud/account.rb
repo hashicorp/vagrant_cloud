@@ -75,7 +75,7 @@ module VagrantCloud
     #
     # @return [self]
     def validate_token
-      client.request(path: "authenticate")
+      client.authentication_token_validate
       self
     end
 
@@ -104,7 +104,7 @@ module VagrantCloud
 
     def setup!
       if client.access_token
-        r = client.request(path: "authenticate")
+        r = client.authentication_token_validate
         @username = r.dig(:user, :username)
       end
     end

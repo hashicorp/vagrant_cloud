@@ -43,10 +43,11 @@ module VagrantCloud
     # @param [String] limit
     # @param [String] page
     # @return [Response::Search]
-    def search(query: Data::Nil, provider: Data::Nil, sort: Data::Nil, order: Data::Nil, limit: Data::Nil, page: Data::Nil)
+    def search(query: Data::Nil, architecture: Data::Nil, provider: Data::Nil, sort: Data::Nil, order: Data::Nil, limit: Data::Nil, page: Data::Nil)
       @lock.synchronize do
         @params = {
           query: query,
+          architecture: architecture,
           provider: provider,
           sort: sort,
           order: order,

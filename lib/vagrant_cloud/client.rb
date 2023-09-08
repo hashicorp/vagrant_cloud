@@ -1,8 +1,12 @@
 module VagrantCloud
   class Client
     include Logger
-    # Base Vagrant Cloud API URL
-    DEFAULT_URL = 'https://vagrantcloud.com/api/v1'.freeze
+    # Path to the v1 API
+    API_V1_PATH = "/api/v1".freeze
+    # Path to the v2 API
+    API_V2_PATH = "/api/v2".freeze
+    # Default host URL
+    API_DEFAULT_URL = "https://vagrantcloud.com".freeze
     # Valid methods that can be retried
     IDEMPOTENT_METHODS = [:get, :head].freeze
     # Number or allowed retries
@@ -41,10 +45,13 @@ module VagrantCloud
     # @param [Instrumentor::Core] instrumentor Instrumentor to use
     # @return [Client]
     def initialize(access_token: nil, url_base: nil, retry_count: nil, retry_interval: nil, instrumentor: nil)
-      url_base = DEFAULT_URL if url_base.nil?
+      url_base = API_DEFAULT_URL if url_base.nil?
       remote_url = URI.parse(url_base)
       @url_base = "#{remote_url.scheme}://#{remote_url.host}"
       @path_base = remote_url.path
+      if @path_base == API_V1_PATH || @path_base == API_V2_PATH
+        @path_base = nil
+      end
       @access_token = access_token.dup.freeze if access_token
       if !@access_token && ENV["VAGRANT_CLOUD_TOKEN"]
         @access_token = ENV["VAGRANT_CLOUD_TOKEN"].dup.freeze
@@ -90,10 +97,19 @@ module VagrantCloud
     # @param [String, URI] path Path of request
     # @param [Hash] params Parameters to send with request
     # @return [Hash]
-    def request(path:, method: :get, params: {})
-      if !path.start_with?(path_base)
+    def request(path:, method: :get, params: {}, api_version: 2)
+      if path_base.nil? || !path.start_with?(path_base)
+        if !path_base.nil?
+          start_path = path_base
+        elsif api_version == 1
+          start_path = API_V1_PATH
+        elsif api_version == 2
+          start_path = API_V2_PATH
+        else
+          raise "Unsupported API version provided"
+        end
         # Build the full path for the request and clean it
-        path = [path_base, path].compact.join("/").gsub(/\/{2,}/, "/")
+        path = [start_path, path].compact.join("/").gsub(/\/{2,}/, "/")
       end
       method = method.to_s.downcase.to_sym
 
@@ -151,15 +167,17 @@ module VagrantCloud
     # Submit a search on Vagrant Cloud
     #
     # @param [String] query Search query
+    # @param [String] architecture Limit results to only this architecture
     # @param [String] provider Limit results to only this provider
     # @param [String] sort Field to sort results ("downloads", "created", or "updated")
     # @param [String] order Order to return sorted result ("desc" or "asc")
     # @param [Integer] limit Number of results to return
     # @param [Integer] page Page number of results to return
     # @return [Hash]
-    def search(query: Data::Nil, provider: Data::Nil, sort: Data::Nil, order: Data::Nil, limit: Data::Nil, page: Data::Nil)
+    def search(query: Data::Nil, architecture: Data::Nil, provider: Data::Nil, sort: Data::Nil, order: Data::Nil, limit: Data::Nil, page: Data::Nil)
       params = {
         q: query,
+        architecture: architecture,
         provider: provider,
         sort: sort,
         order: order,
@@ -189,14 +207,14 @@ module VagrantCloud
           code: code
         }
       }
-      request(method: :post, path: "authenticate", params: params)
+      request(method: :post, path: "authenticate", params: params, api_version: 1)
     end
 
     # Delete the token currently in use
     #
     # @return [Hash] empty
     def authentication_token_delete
-      request(method: :delete, path: "authenticate")
+      request(method: :delete, path: "authenticate", api_version: 1)
     end
 
     # Request a 2FA code is sent
@@ -217,7 +235,7 @@ module VagrantCloud
         }
       }
 
-      request(method: :post, path: "two-factor/request-code", params: params)
+      request(method: :post, path: "two-factor/request-code", params: params, api_version: 1)
     end
 
     # Validate the current token
@@ -367,9 +385,14 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Architecture name
     # @return [Hash] box version provider information
-    def box_version_provider_get(username:, name:, version:, provider:)
-      request(method: :get, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}")
+    def box_version_provider_get(username:, name:, version:, provider:, architecture: nil)
+      req_path = ["/box", username, name, "version", version,
+        "provider", provider, architecture].compact.join("/")
+      api_version = architecture.nil? ? 1 : 2
+
+      request(method: :get, path: req_path, api_version: api_version)
     end
 
     # Create a new box version provider
@@ -378,17 +401,35 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Architecture name
+    # @param [Boolean] default_architecture Flag architecture as default in named provider group
     # @param [String] url Remote URL for box download
     # @return [Hash] box version provider information
-    def box_version_provider_create(username:, name:, version:, provider:, url: Data::Nil, checksum: Data::Nil, checksum_type: Data::Nil)
-      request(method: :post, path: "/box/#{username}/#{name}/version/#{version}/providers", params: {
-        provider: {
-          name: provider,
-          url: url,
-          checksum: checksum,
-          checksum_type: checksum_type
-        }
-      })
+    def box_version_provider_create(username:, name:, version:, provider:, architecture: nil, default_architecture: Data::Nil, url: Data::Nil, checksum: Data::Nil, checksum_type: Data::Nil)
+      provider_params = {
+        name: provider,
+        url: url,
+        checksum: checksum,
+        checksum_type: checksum_type
+      }
+      if architecture.nil?
+        api_version = 1
+      else
+        api_version = 2
+        provider_params.merge!(
+          architecture: architecture,
+          default_architecture: default_architecture
+        )
+      end
+
+      request(
+        method: :post,
+        path: "/box/#{username}/#{name}/version/#{version}/providers",
+        params: {
+          provider: provider_params
+        },
+        api_version: api_version
+      )
     end
 
     # Update an existing box version provider
@@ -397,18 +438,31 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Current architecture name
+    # @param [String] new_architecture New architecture name to apply
     # @param [String] url Remote URL for box download
     # @return [Hash] box version provider information
-    def box_version_provider_update(username:, name:, version:, provider:, url: Data::Nil, checksum: Data::Nil, checksum_type: Data::Nil)
-      params = {
-        provider: {
-          name: provider,
-          url: url,
-          checksum: checksum,
-          checksum_type: checksum_type
-        }
+    def box_version_provider_update(username:, name:, version:, provider:, architecture: nil, new_architecture: Data::Nil, default_architecture: Data::Nil, url: Data::Nil, checksum: Data::Nil, checksum_type: Data::Nil)
+      provider_params = {
+        name: provider,
+        url: url,
+        checksum: checksum,
+        checksum_type: checksum_type
       }
-      request(method: :put, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}", params: params)
+      if architecture.nil?
+        api_version = 1
+      else
+        api_version = 2
+        provider_params.merge!(
+          architecture: new_architecture,
+          default_architecture: default_architecture
+        )
+      end
+
+      req_path = ["/box", username, name, "version", version,
+        "provider", provider, architecture].compact.join("/")
+
+      request(method: :put, path: req_path, params: {provider: provider_params}, api_version: api_version)
     end
 
     # Delete an existing box version provider
@@ -417,9 +471,14 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Architecture name
     # @return [Hash] box version provider information
-    def box_version_provider_delete(username:, name:, version:, provider:)
-      request(method: :delete, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}")
+    def box_version_provider_delete(username:, name:, version:, provider:, architecture: nil)
+      req_path = ["/box", username, name, "version", version,
+        "provider", provider, architecture].compact.join("/")
+      api_version = architecture.nil? ? 1 : 2
+
+      request(method: :delete, path: req_path, api_version: api_version)
     end
 
     # Upload a box asset for an existing box version provider
@@ -428,9 +487,14 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Architecture name
     # @return [Hash] box version provider upload information (contains upload_path entry)
-    def box_version_provider_upload(username:, name:, version:, provider:)
-      request(method: :get, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}/upload")
+    def box_version_provider_upload(username:, name:, version:, provider:, architecture: nil)
+      req_path = ["/box", username, name, "version", version,
+        "provider", provider, architecture, "upload"].compact.join("/")
+      api_version = architecture.nil? ? 1 : 2
+
+      request(method: :get, path: req_path, api_version: api_version)
     end
 
     # Upload a box asset directly to the backend storage for an existing box version provider
@@ -439,9 +503,14 @@ module VagrantCloud
     # @param [String] name Box name
     # @param [String] version Box version
     # @param [String] provider Provider name
+    # @param [String] architecture Architecture name
     # @return [Hash] box version provider upload information (contains upload_path and callback entries)
-    def box_version_provider_upload_direct(username:, name:, version:, provider:)
-      request(method: :get, path: "/box/#{username}/#{name}/version/#{version}/provider/#{provider}/upload/direct")
+    def box_version_provider_upload_direct(username:, name:, version:, provider:, architecture: nil)
+      req_path = ["/box", username, name, "version", version,
+        "provider", provider, architecture, "upload/direct"].compact.join("/")
+      api_version = architecture.nil? ? 1 : 2
+
+      request(method: :get, path: req_path, api_version: api_version)
     end
 
     protected

@@ -10,7 +10,7 @@ describe VagrantCloud::Account do
 
   before do
     allow(VagrantCloud::Client).to receive(:new).with(hash_including(access_token: access_token)).and_return(client)
-    expect(client).to receive(:request).with(path: "authenticate").
+    allow(client).to receive(:authentication_token_validate).
       and_return(user: {username: username})
   end
 
@@ -99,7 +99,7 @@ describe VagrantCloud::Account do
 
   describe "#validate_token" do
     it "should call authenticate" do
-      expect(client).to receive(:request).with(path: "authenticate")
+      expect(client).to receive(:authentication_token_validate)
       subject.validate_token
     end
 
@@ -176,11 +176,11 @@ describe VagrantCloud::Account do
     let(:response) { {user: {username: different_username}} }
     let(:different_username) { double("different_username") }
 
-    before { allow(client).to receive(:request).with(path: "authenticate").
+    before { allow(client).to receive(:authentication_token_validate).
         and_return(response) }
 
     it "should make a request to authenticate" do
-      expect(client).to receive(:request).with(path: "authenticate").and_return(response)
+      expect(client).to receive(:authentication_token_validate).and_return(response)
       subject.send(:setup!)
     end
 
@@ -199,7 +199,7 @@ describe VagrantCloud::Account do
       end
 
       it "should not fetch the token username" do
-        expect(c).not_to receive(:request).with(path: "authenticate")
+        expect(c).not_to receive(:authentication_token_validate)
         expect(instance.send(:setup!)).to be_nil
       end
     end
