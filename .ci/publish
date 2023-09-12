@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+
+export SLACK_USERNAME="Vagrant Cloud RubyGem"
+export SLACK_ICON="https://avatars.slack-edge.com/2017-10-17/257000837696_070f98107cdacc0486f6_36.png"
+export SLACK_TITLE="💎 RubyGems Publishing"
+export SLACK_CHANNEL="#feed-vagrant"
+
+csource="${BASH_SOURCE[0]}"
+while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
+root="$( cd -P "$( dirname "$csource" )/../" && pwd )"
+
+. "${root}/.ci/init.sh"
+
+pushd "${root}"
+
+info "Building vagrant_cloud RubyGem..."
+
+build_info="$(gem build vagrant_cloud.gemspec)" ||
+    failure "Failed to build vagrant_cloud RubyGem"
+
+version="${build_info##*Version: }"
+version="${version%$'\n'*}"
+
+gem_matches=( "${root}"/vagrant_cloud*.gem )
+gem_file="${gem_matches[0]}"
+
+if [ ! -f "${gem_file}" ]; then
+    failure "Unable to locate vagrant_cloud RubyGem file"
+fi
+
+publish_to_rubygems "${gem_file}"
+
+slack -m "New version of vagrant_cloud published: ${version} (file: ${gem_file##*/})"
