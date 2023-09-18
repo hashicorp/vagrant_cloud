@@ -10,7 +10,8 @@ on:
       - 'main'
 
 jobs:
-  sync-builders:
+  sync-builder:
+    name: Sync builder repository
     if: github.repository == 'hashicorp/vagrant_cloud'
     runs-on: ubuntu-latest
     steps:
