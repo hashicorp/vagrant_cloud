@@ -3,7 +3,7 @@
 export SLACK_USERNAME="Vagrant Cloud RubyGem"
 export SLACK_ICON="https://avatars.slack-edge.com/2017-10-17/257000837696_070f98107cdacc0486f6_36.png"
 export SLACK_TITLE="💎 RubyGems Publishing"
-export SLACK_CHANNEL="#feed-vagrant"
+export SLACK_CHANNEL="#team-vagrant"
 
 csource="${BASH_SOURCE[0]}"
 while [ -h "$csource" ] ; do csource="$(readlink "$csource")"; done
