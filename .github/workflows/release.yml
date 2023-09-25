@@ -13,7 +13,7 @@ jobs:
     if: github.repository == 'hashicorp/vagrant_cloud-builder'
     runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.small']
     permissions:
-      contents: write
+      contents: read
       id-token: write
     steps:
       - name: Authentication
@@ -26,13 +26,18 @@ jobs:
           url: ${{ steps.vault-auth.outputs.addr }}
           caCertificate: ${{ steps.vault-auth.outputs.ca_certificate }}
           token: ${{ steps.vault-auth.outputs.token }}
-        secrets:
-          kv/data/teams/vagrant/gems/rubygems_api_key;
-          kv/data/teams/vagrant/slack/webhook slack_webhook;
+          secrets:
+            kv/data/github/hashicorp/vagrant_cloud-builder rubygems_api_key;
+            kv/data/teams/vagrant/slack webhook;
       - name: Code Checkout
         uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac # v4.0.0
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@250fcd6a742febb1123a77a841497ccaa8b9e939 # v1.152.0
+        with:
+          ruby-version: 3.1
       - name: Publish
         run: ./.ci/publish
         env:
           RUBYGEMS_API_KEY: ${{ steps.secrets.outputs.rubygems_api_key }}
-          SLACK_WEBHOOK: ${{ steps.secrets.outputs.slack_webhook }}
+          GEM_HOST_API_KEY: ${{ steps.secrets.outputs.rubygems_api_key }}
+          SLACK_WEBHOOK: ${{ steps.secrets.outputs.webhook }}
