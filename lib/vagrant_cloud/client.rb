@@ -49,7 +49,7 @@ module VagrantCloud
       remote_url = URI.parse(url_base)
       @url_base = "#{remote_url.scheme}://#{remote_url.host}"
       @path_base = remote_url.path
-      if @path_base == API_V1_PATH || @path_base == API_V2_PATH
+      if @path_base.empty? || @path_base == API_V1_PATH || @path_base == API_V2_PATH
         @path_base = nil
       end
       @access_token = access_token.dup.freeze if access_token
@@ -98,19 +98,28 @@ module VagrantCloud
     # @param [Hash] params Parameters to send with request
     # @return [Hash]
     def request(path:, method: :get, params: {}, api_version: 2)
-      if path_base.nil? || !path.start_with?(path_base)
-        if !path_base.nil?
-          start_path = path_base
-        elsif api_version == 1
-          start_path = API_V1_PATH
-        elsif api_version == 2
-          start_path = API_V2_PATH
-        else
-          raise "Unsupported API version provided"
+      # Apply any path modifications that are required
+      catch(:done) do
+        # If a base path is defined, and the provided path
+        # is already properly prefixed with it, do nothing.
+        throw :done if !path_base.nil? && path.start_with?(path_base)
+
+        # If the path does not include an API version
+        # prefix, add it now.
+        if !path.start_with?(API_V1_PATH) && !path.start_with?(API_V2_PATH)
+          case api_version
+          when 1
+            start_path = API_V1_PATH
+          when 2
+            start_path = API_V2_PATH
+          else
+            raise ArgumentError, "Unsupported API version provided"
+          end
         end
-        # Build the full path for the request and clean it
-        path = [start_path, path].compact.join("/").gsub(/\/{2,}/, "/")
+
+        path = [path_base, start_path, path].compact.join("/").gsub(/\/{2,}/, "/")
       end
+
       method = method.to_s.downcase.to_sym
 
       # Build base request parameters
