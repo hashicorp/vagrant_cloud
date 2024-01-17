@@ -151,6 +151,57 @@ describe VagrantCloud::Client do
       subject.request(path: "/")
     end
 
+    context "path prefixing" do
+      it "should prefix the v2 API by default" do
+        expect(connection).to receive(:request) do |args|
+          expect(args[:path]).to start_with(VagrantCloud::Client::API_V2_PATH)
+          response
+        end
+        subject.request(path: "/")
+      end
+
+      it "should prefix the v1 API when requested" do
+        expect(connection).to receive(:request) do |args|
+          expect(args[:path]).to start_with(VagrantCloud::Client::API_V1_PATH)
+          response
+        end
+        subject.request(path: "/", api_version: 1)
+      end
+
+      it "should prefix the v2 API when requested" do
+        expect(connection).to receive(:request) do |args|
+          expect(args[:path]).to start_with(VagrantCloud::Client::API_V2_PATH)
+          response
+        end
+        subject.request(path: "/", api_version: 2)
+      end
+
+      it "should not add a prefix if the v1 API prefix already exists" do
+        expect(connection).to receive(:request).with(hash_including(path: "/api/v1/test/path"))
+        subject.request(path: "/api/v1/test/path")
+      end
+
+      it "should not add a prefix if the v2 API prefix already exists" do
+        expect(connection).to receive(:request).with(hash_including(path: "/api/v2/test/path"))
+        subject.request(path: "/api/v2/test/path")
+      end
+
+      context "when base path is defined" do
+        let(:base_path) { "/custom/path" }
+        subject { described_class.new(url_base: "http://example.com#{base_path}") }
+
+        it "should suffix API to base path" do
+          expect(connection).to receive(:request).with(hash_including(path: "#{base_path}/api/v1/test"))
+          subject.request(path: "/test", api_version: 1)
+        end
+
+        it "should not modify path if base path is detected" do
+          expect(connection).to receive(:request).with(hash_including(path: "#{base_path}/custom/request"))
+          subject.request(path: "/custom/path/custom/request")
+        end
+      end
+    end
+
     context "when response body is valid json" do
       let(:body) { {result: true}.to_json }
 
