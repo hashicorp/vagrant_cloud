@@ -1,5 +1,7 @@
 # v3.1.1 (UNRELEASED)
 
+* Update path prefixing behavior on request [[GH-85]](https://github.com/hashicorp/vagrant_cloud/pull/85)
+
 # v3.1.0 (September 22, 2023)
 
 * Add support for architecture in providers [[GH-82]](https://github.com/hashicorp/vagrant_cloud/pull/82)
