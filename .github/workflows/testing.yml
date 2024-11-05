@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ruby: [ '2.7', '3.0', '3.1', '3.2' ]
+        ruby: [ '3.1', '3.2', '3.3' ]
     name: Vagrant Cloud unit tests on Ruby ${{ matrix.ruby }}
     steps:
       - name: Code Checkout
