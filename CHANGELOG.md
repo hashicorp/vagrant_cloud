@@ -1,12 +1,15 @@
 # v3.1.2 (UNRELEASED)
 
+* Update excon dependency constraint [GH-88](https://github.com/hashicorp/vagrant_cloud/pull/88)
+* Update REXML dependency constraint [GH-87](https://github.com/hashicorp/vagrant_cloud/pull/87)
+
 # v3.1.1 (January 17, 2024)
 
-* Update path prefixing behavior on request [[GH-85]](https://github.com/hashicorp/vagrant_cloud/pull/85)
+* Update path prefixing behavior on request [GH-85](https://github.com/hashicorp/vagrant_cloud/pull/85)
 
 # v3.1.0 (September 22, 2023)
 
-* Add support for architecture in providers [[GH-82]](https://github.com/hashicorp/vagrant_cloud/pull/82)
+* Add support for architecture in providers [GH-82](https://github.com/hashicorp/vagrant_cloud/pull/82)
 
 # v3.0.5 (July 22, 2021)
 
