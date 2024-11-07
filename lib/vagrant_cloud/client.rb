@@ -23,8 +23,6 @@ module VagrantCloud
       DEFAULT_INSTRUMENTOR
     end
 
-    # @return [String] Access token for Vagrant Cloud
-    attr_reader :access_token
     # @return [String] Base request path
     attr_reader :path_base
     # @return [String] URL for initializing connection
@@ -52,16 +50,12 @@ module VagrantCloud
       if @path_base.empty? || @path_base == API_V1_PATH || @path_base == API_V2_PATH
         @path_base = nil
       end
-      @access_token = access_token.dup.freeze if access_token
-      if !@access_token && ENV["VAGRANT_CLOUD_TOKEN"]
-        @access_token = ENV["VAGRANT_CLOUD_TOKEN"].dup.freeze
-      end
+      @auth = Auth.new(access_token: access_token)
       @retry_count = retry_count.nil? ? IDEMPOTENT_RETRIES : retry_count.to_i
       @retry_interval = retry_interval.nil? ? IDEMPOTENT_RETRY_INTERVAL : retry_interval.to_i
       @instrumentor = instrumentor.nil? ? Instrumentor::Collection.new : instrumentor
       headers = {}.tap do |h|
         h["Accept"] = "application/json"
-        h["Authorization"] = "Bearer #{@access_token}" if @access_token
         h["Content-Type"] = "application/json"
       end
       @connection_lock = Mutex.new
@@ -69,6 +63,11 @@ module VagrantCloud
         headers: headers,
         instrumentor: @instrumentor
       )
+    end
+
+    # @return [String] Access token for Vagrant Cloud
+    def access_token
+      @auth.token
     end
 
     # Use the remote connection
@@ -79,16 +78,28 @@ module VagrantCloud
     def with_connection(wait: true)
       raise ArgumentError,
         "Block expected but no block given" if !block_given?
+
+      # Adds authentication header to connection if available
+      set_authentication = ->(conn) {
+        if @auth.available?
+          conn.connection[:headers]["Authorization"] = "Bearer #{@auth.token}"
+        end
+      }
+
       if !wait
         raise Error::ClientError::ConnectionLockedError,
           "Connection is currently locked" if !@connection_lock.try_lock
+        set_authentication.call(@connection)
         begin
           yield @connection
         ensure
           @connection_lock.unlock
         end
       else
-        @connection_lock.synchronize { yield @connection }
+        @connection_lock.synchronize do
+          set_authentication.call(@connection)
+          yield @connection
+        end
       end
     end
 

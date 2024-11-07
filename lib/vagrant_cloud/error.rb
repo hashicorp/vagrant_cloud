@@ -29,6 +29,13 @@ module VagrantCloud
       end
 
       class ConnectionLockedError < ClientError; end
+      class AuthenticationError < ClientError
+        def initialize(msg, http_code)
+          @error_arr = [msg]
+          @error_code = http_code.to_i
+          super(msg)
+        end
+      end
     end
 
     class BoxError < Error
