@@ -13,6 +13,14 @@ The Vagrant Cloud library provides two methods for interacting with the Vagrant 
 first is direct interaction using a `VagrantCloud::Client` instance. The second is a basic
 model based approach using a `VagrantCloud::Account` instance.
 
+### Authentication
+
+The access token that is used for authenticated requests can be set in one of three ways:
+
+* Static access token set directly in the client
+* Static access token extracted from the `VAGRANT_CLOUD_TOKEN` environment variable 
+* Generated [HCP service principal](https://developer.hashicorp.com/hcp/docs/hcp/iam/service-principal) access token when `HCP_CLIENT_ID` and `HCP_CLIENT_SECRET` environment variables are set
+
 ### Direct Client
 
 The `VagrantCloud::Client` class contains all the underlying functionality which with
