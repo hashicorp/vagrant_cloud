@@ -8,6 +8,7 @@ require "thread"
 
 module VagrantCloud
   autoload :Account, "vagrant_cloud/account"
+  autoload :Auth, "vagrant_cloud/auth"
   autoload :Box, "vagrant_cloud/box"
   autoload :Client, "vagrant_cloud/client"
   autoload :Data, "vagrant_cloud/data"
