@@ -1,5 +1,6 @@
 # v3.1.2 (UNRELEASED)
 
+* Add support for HCP authentication [GH-90](https://github.com/hashicorp/vagrant_cloud/pull/88)
 * Update excon dependency constraint [GH-88](https://github.com/hashicorp/vagrant_cloud/pull/88)
 * Update REXML dependency constraint [GH-87](https://github.com/hashicorp/vagrant_cloud/pull/87)
 
