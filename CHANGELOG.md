@@ -1,3 +1,5 @@
+# v3.1.3 (UNRELEASED)
+
 # v3.1.2 (November 11, 2024)
 
 * Add support for HCP authentication [GH-90](https://github.com/hashicorp/vagrant_cloud/pull/88)
