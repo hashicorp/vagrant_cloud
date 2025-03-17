@@ -3,6 +3,13 @@ require 'vagrant_cloud'
 
 describe VagrantCloud::Client do
   let(:connection) { double("connection", request: nil) }
+  let(:oauth_client) { double("oauth", client_credentials: client_credentials) }
+  let(:client_credentials) { double("client_credentials", get_token: token) }
+  let(:token) { VagrantCloud::Auth::HCPToken.new(token: "stub", expires_at: Time.now.to_i + 100) }
+
+  before do
+    allow(OAuth2::Client).to receive(:new).and_return(oauth_client)
+  end
 
   describe "#intialize" do
     context "with no arguments" do
@@ -20,10 +27,6 @@ describe VagrantCloud::Client do
 
       it "should have #instrumentor set" do
         expect(subject.instrumentor).not_to be_nil
-      end
-
-      it "should not have #access_token set" do
-        expect(subject.access_token).to be_nil
       end
     end
 
@@ -482,21 +485,21 @@ describe VagrantCloud::Client do
 
     it "should include description" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :description)).to eq(description)
+        expect(args.dig(:params, :box, :description)).to eq(description)
       end
       subject.box_create(username: username, name: name, description: description)
     end
 
     it "should include short_description" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :short_description)).to eq(short_description)
+        expect(args.dig(:params, :box, :short_description)).to eq(short_description)
       end
       subject.box_create(username: username, name: name, short_description: short_description)
     end
 
     it "should include is_private" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :is_private)).to eq(is_private)
+        expect(args.dig(:params, :box, :is_private)).to eq(is_private)
       end
       subject.box_create(username: username, name: name, is_private: is_private)
     end
@@ -526,21 +529,21 @@ describe VagrantCloud::Client do
 
     it "should include description" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :description)).to eq(description)
+        expect(args.dig(:params, :box, :description)).to eq(description)
       end
       subject.box_update(username: username, name: name, description: description)
     end
 
     it "should include short_description" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :short_description)).to eq(short_description)
+        expect(args.dig(:params, :box, :short_description)).to eq(short_description)
       end
       subject.box_update(username: username, name: name, short_description: short_description)
     end
 
     it "should include is_private" do
       expect(subject).to receive(:request) do |args|
-        expect(args.dig(:params, :is_private)).to eq(is_private)
+        expect(args.dig(:params, :box, :is_private)).to eq(is_private)
       end
       subject.box_update(username: username, name: name, is_private: is_private)
     end
