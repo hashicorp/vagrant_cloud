@@ -292,11 +292,13 @@ module VagrantCloud
     # @return [Hash] box information
     def box_create(username:, name:, short_description: Data::Nil, description: Data::Nil, is_private: Data::Nil)
       request(method: :post, path: '/boxes', params: {
-        username: username,
-        name: name,
-        short_description: short_description,
-        description: description,
-        is_private: is_private
+        box: {
+          username: username,
+          name: name,
+          short_description: short_description,
+          description: description,
+          is_private: is_private
+        }
       })
     end
 
@@ -310,9 +312,11 @@ module VagrantCloud
     # @return [Hash] box information
     def box_update(username:, name:, short_description: Data::Nil, description: Data::Nil, is_private: Data::Nil)
       params = {
-        short_description: short_description,
-        description: description,
-        is_private: is_private
+        box: {
+          short_description: short_description,
+          description: description,
+          is_private: is_private
+        }
       }
       request(method: :put, path: "/box/#{username}/#{name}", params: params)
     end

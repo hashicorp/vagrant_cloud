@@ -131,7 +131,7 @@ module VagrantCloud
           expires_at: response.expires_at,
         )
       rescue OAuth2::Error => err
-        raise Error::AuthenticationError,
+        raise Error::ClientError::AuthenticationError,
           err.response.body.chomp,
           err.response.status
       end
