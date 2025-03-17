@@ -1,5 +1,7 @@
 # v3.1.3 (UNRELEASED)
 
+* Fix box create/update requests [GH-91](https://github.com/hashicorp/vagrant_cloud/pull/91)
+
 # v3.1.2 (November 11, 2024)
 
 * Add support for HCP authentication [GH-90](https://github.com/hashicorp/vagrant_cloud/pull/88)
