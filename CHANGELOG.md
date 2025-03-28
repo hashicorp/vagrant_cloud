@@ -1,4 +1,4 @@
-# v3.1.3 (UNRELEASED)
+# v3.1.3 (March 28, 2025)
 
 * Fix box create/update requests [GH-91](https://github.com/hashicorp/vagrant_cloud/pull/91)
 
