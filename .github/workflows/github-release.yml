@@ -1,0 +1,33 @@
+name: GitHub Release
+on:
+  workflow_call:
+    inputs:
+      release_name:
+        description: 'Name of the GitHub release (example: v1.0.0)'
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Name of the GitHub release (example: v1.0.0)'
+        required: false
+        type: string
+
+jobs:
+  github-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Code Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@922ebc4c5262cd14e07bb0e1db020984b6c064fe # v1.226.0
+        with:
+          ruby-version: 3.3
+      - name: GitHub Release
+        run: ./.ci/github-release "${RELEASE_NAME}"
+        env:
+          RELEASE_NAME: ${{ inputs.release_name }}
+          GITHUB_TOKEN: ${{ github.token }}
