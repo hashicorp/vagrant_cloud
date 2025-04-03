@@ -1,43 +1,27 @@
-name: Release vagrant_cloud RubyGem
-
 on:
   push:
-    branches:
-      - 'release-*'
-    tags:
-      - 'v*'
+    tags: 'v*'
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Name of the GitHub release (example: v1.0.0)'
+        type: string
+        require: true
 
 jobs:
-  publish:
-    name: Publish vagrant_cloud RubyGem
-    if: github.repository == 'hashicorp/vagrant_cloud-builder'
-    runs-on: ['self-hosted', 'ondemand', 'linux', 'type=t3.small']
+  github-release:
+    if: github.repository == 'hashicorp/vagrant_cloud'
+    name: Create GitHub release
     permissions:
-      contents: read
-      id-token: write
-    steps:
-      - name: Authentication
-        id: vault-auth
-        run: vault-auth
-      - name: Secrets
-        id: secrets
-        uses: hashicorp/vault-action@v2
-        with:
-          url: ${{ steps.vault-auth.outputs.addr }}
-          caCertificate: ${{ steps.vault-auth.outputs.ca_certificate }}
-          token: ${{ steps.vault-auth.outputs.token }}
-          secrets:
-            kv/data/github/hashicorp/vagrant_cloud-builder rubygems_api_key;
-            kv/data/teams/vagrant/slack webhook;
-      - name: Code Checkout
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-      - name: Setup Ruby
-        uses: ruby/setup-ruby@922ebc4c5262cd14e07bb0e1db020984b6c064fe # v1.226.0
-        with:
-          ruby-version: 3.1
-      - name: Publish
-        run: ./.ci/publish
-        env:
-          RUBYGEMS_API_KEY: ${{ steps.secrets.outputs.rubygems_api_key }}
-          GEM_HOST_API_KEY: ${{ steps.secrets.outputs.rubygems_api_key }}
-          SLACK_WEBHOOK: ${{ steps.secrets.outputs.webhook }}
+      contents: write
+    uses: ./.github/workflows/github-release.yml
+    with:
+      release_name: ${{ inputs.release_name }}
+  publish-rubygem:
+    if: github.repository == 'hashicorp/vagrant_cloud'
+    needs: [github-release]
+    name: Trigger RubyGem publication
+    uses: ./.github/workflows/publish-rubygem.yml
+    secrets: inherit
+    with:
+      release_name: ${{ inputs.release_name }}
