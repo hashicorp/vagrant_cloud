@@ -1,3 +1,6 @@
+# Copyright IBM Corp. 2014, 2025
+# SPDX-License-Identifier: MIT
+
 module VagrantCloud
   class Box
     class Provider < Data::Mutable
