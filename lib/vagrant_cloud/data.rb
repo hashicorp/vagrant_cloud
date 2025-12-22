@@ -1,3 +1,6 @@
+# Copyright IBM Corp. 2014, 2025
+# SPDX-License-Identifier: MIT
+
 module VagrantCloud
   # Generic data class which provides simple attribute
   # data storage using a Hash like interface
